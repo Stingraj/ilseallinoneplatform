@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ilse Sørensen Murdock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #FFFFFF;
+            --off-white: #F5F2EE;
+            --grey: #AAAAAA;
+            --red: #CC0000;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 300;
+            background: var(--white);
+            color: #111;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* HERO */
+        .hero {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            background: var(--off-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+        }
+
+        .hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .hero-nav {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 48px 56px;
+            z-index: 12;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .hero-name {
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #1a1a1a;
+            cursor: pointer;
+            user-select: none;
+            transition: color 200ms ease;
+        }
+
+        .hero-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .hero-links a {
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #1a1a1a;
+            text-decoration: none;
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+            transition: opacity 200ms ease, transform 200ms ease, color 200ms ease;
+            cursor: pointer;
+            display: block;
+            text-align: right;
+        }
+
+        .hero-nav:hover .hero-name,
+        .hero-nav:focus-within .hero-name {
+            color: var(--grey);
+        }
+
+        .hero-nav:hover .hero-links a,
+        .hero-nav:focus-within .hero-links a {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .hero-nav:hover .hero-links a:nth-child(1),
+        .hero-nav:focus-within .hero-links a:nth-child(1) {
+            transition-delay: 0ms;
+        }
+
+        .hero-nav:hover .hero-links a:nth-child(2),
+        .hero-nav:focus-within .hero-links a:nth-child(2) {
+            transition-delay: 60ms;
+        }
+
+        .hero-nav:hover .hero-links a:nth-child(3),
+        .hero-nav:focus-within .hero-links a:nth-child(3) {
+            transition-delay: 120ms;
+        }
+
+        .hero-links a:hover {
+            color: var(--grey);
+        }
+
+        /* ABOUT PANEL */
+        .about-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(860px, 100vw);
+            height: 100vh;
+            background: var(--white);
+            z-index: 20;
+            transform: translateX(100%);
+            transition: transform 400ms ease;
+            padding: 80px 56px 56px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .about-panel.active {
+            transform: translateX(0);
+        }
+
+        .contact-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(860px, 100vw);
+            height: 100vh;
+            background-color: var(--off-white);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.45), transparent 42%),
+                radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.28), transparent 36%),
+                radial-gradient(circle at 30% 72%, rgba(255, 255, 255, 0.2), transparent 40%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(245, 242, 238, 0.92));
+            z-index: 21;
+            transform: translateX(100%);
+            transition: transform 400ms ease;
+            padding: 80px 56px 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 34px;
+        }
+
+        .contact-panel.active {
+            transform: translateX(0);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+            gap: 40px;
+            align-items: start;
+            flex: 1;
+        }
+
+        .about-media {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .about-panel h2 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            margin-bottom: 40px;
+            line-height: 1.2;
+        }
+
+        .about-portrait {
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
+            display: block;
+            margin-bottom: 0;
+        }
+
+        .about-panel .bio {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .about-panel .bio p {
+            margin-bottom: 20px;
+        }
+
+        .contact-section {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .contact-heading {
+            font-size: clamp(36px, 4vw, 54px);
+            font-weight: 200;
+            line-height: 0.95;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #111111;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 340px;
+        }
+
+        .contact-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(17, 17, 17, 0.14);
+            background: rgba(255, 255, 255, 0.68);
+            color: #111;
+            font: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .contact-input:focus {
+            border-color: rgba(17, 17, 17, 0.28);
+            background: rgba(255, 255, 255, 0.82);
+        }
+
+        .contact-submit {
+            align-self: flex-start;
+            padding: 14px 24px;
+            border: none;
+            background: var(--red);
+            color: var(--white);
+            font: inherit;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 200ms ease;
+        }
+
+        .contact-submit:hover {
+            background: #b30000;
+        }
+
+        .contact-details {
+            max-width: 360px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 15px;
+            line-height: 1.9;
+            color: rgba(17, 17, 17, 0.82);
+        }
+
+        .contact-cap {
+            margin-top: auto;
+            padding-top: 8px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .contact-cap-button {
+            border: none;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .contact-cap img {
+            width: 150px;
+            height: auto;
+            display: block;
+            mix-blend-mode: multiply;
+            background: transparent;
+            filter: contrast(1.1);
+        }
+
+        /* CLOSE BUTTONS */
+        .close-x {
+            position: absolute;
+            top: 36px;
+            right: 40px;
+            font-size: 24px;
+            font-weight: 200;
+            color: #111;
+            cursor: pointer;
+            z-index: 30;
+            background: none;
+            border: none;
+            padding: 8px;
+            line-height: 1;
+            transition: color 200ms ease;
+        }
+
+        .close-x:hover {
+            color: var(--grey);
+        }
+
+        /* GALLERY OVERLAY */
+        .gallery-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--white);
+            z-index: 25;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 400ms ease;
+            overflow: auto;
+            padding: 72px 40px 40px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .gallery-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .gallery-content {
+            width: min(94vw, 1480px);
+            height: min(calc(100vh - 112px), 1100px);
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+            gap: clamp(20px, 2vw, 32px);
+        }
+
+        .gallery-dots {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: nowrap;
+            gap: clamp(14px, 1.6vw, 24px);
+            min-height: 56px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .gallery-dots::-webkit-scrollbar {
+            display: none;
+        }
+
+        .gallery-dot {
+            width: clamp(34px, 3.8vw, 54px);
+            height: clamp(34px, 3.8vw, 54px);
+            flex: 0 0 auto;
+            appearance: none;
+            -webkit-appearance: none;
+            border: none;
+            border-radius: 0;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 180ms ease, opacity 180ms ease;
+        }
+
+        .gallery-dot.active {
+            transform: scale(1.12);
+            opacity: 1;
+        }
+
+        .gallery-dot img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        .gallery-stage {
+            min-width: 0;
+            min-height: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-main-image {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            display: block;
+            object-fit: contain;
+            object-position: center top;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 36px;
+            left: 40px;
+            font-size: 28px;
+            font-weight: 200;
+            color: #111;
+            cursor: pointer;
+            z-index: 36;
+            background: none;
+            border: none;
+            padding: 8px;
+            line-height: 1;
+            transition: color 200ms ease;
+        }
+
+        .back-arrow:hover {
+            color: var(--grey);
+        }
+
+        /* SHOP OVERLAY */
+        .shop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--white);
+            z-index: 40;
+            display: none;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 400ms ease;
+            overflow-y: auto;
+            padding: 80px 56px 56px;
+        }
+
+        .shop-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 48px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .shop-heading {
+            max-width: 900px;
+            margin: 0 auto 32px;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        .shop-item {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 300ms ease, transform 300ms ease;
+        }
+
+        .shop-overlay.active .shop-item {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .shop-overlay.active .shop-item:nth-child(1) {
+            transition-delay: 0ms;
+        }
+
+        .shop-overlay.active .shop-item:nth-child(2) {
+            transition-delay: 100ms;
+        }
+
+        .shop-overlay.active .shop-item:nth-child(3) {
+            transition-delay: 200ms;
+        }
+
+        .shop-overlay.active .shop-item:nth-child(4) {
+            transition-delay: 300ms;
+        }
+
+        .shop-overlay.active .shop-item:nth-child(5) {
+            transition-delay: 400ms;
+        }
+
+        .shop-overlay.active .shop-item:nth-child(6) {
+            transition-delay: 500ms;
+        }
+
+        .shop-item img {
+            width: 100%;
+            aspect-ratio: 4/5;
+            object-fit: cover;
+            display: block;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .shop-item .title {
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .shop-item .year {
+            font-size: 11px;
+            font-weight: 300;
+            color: var(--grey);
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .shop-item .medium {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 13px;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .shop-item .price {
+            font-size: 12px;
+            font-weight: 400;
+            color: #111;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .product-detail-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 55;
+            background: var(--white);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 300ms ease;
+            overflow-y: auto;
+            padding: 80px 56px 56px;
+        }
+
+        .product-detail-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .product-detail-layout {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 60fr) minmax(320px, 40fr);
+            gap: 48px;
+            align-items: start;
+        }
+
+        .product-detail-image-wrap img {
+            width: 100%;
+            aspect-ratio: 4/5;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-detail-copy h2 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .detail-year {
+            font-size: 11px;
+            color: var(--grey);
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .detail-medium {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 13px;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 14px;
+        }
+
+        .detail-price {
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            margin-bottom: 18px;
+        }
+
+        .detail-description {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.9;
+            color: #333;
+            margin-bottom: 24px;
+        }
+
+        .variation-label {
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .variation-swatches {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .variation-swatch {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 17, 17, 0.18);
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .variation-swatch.active {
+            outline: 1px solid #111;
+            outline-offset: 3px;
+        }
+
+        .purchase-button,
+        .payment-submit {
+            padding: 14px 20px;
+            border: none;
+            background: var(--red);
+            color: var(--white);
+            font: inherit;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 200ms ease;
+        }
+
+        .purchase-button:hover,
+        .payment-submit:hover {
+            background: #b30000;
+        }
+
+        .payment-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 250ms ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .payment-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .payment-card {
+            position: relative;
+            width: min(520px, 100%);
+            background: var(--white);
+            border: 1px solid #e7e0d8;
+            padding: 56px 32px 32px;
+        }
+
+        .payment-card h3 {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .payment-price {
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            margin-bottom: 24px;
+        }
+
+        .payment-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .payment-form input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #ddd4cc;
+            background: #fff;
+            color: #111;
+            font: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .payment-row {
+            display: grid;
+            grid-template-columns: 1fr 120px;
+            gap: 12px;
+        }
+
+        .payment-success {
+            display: none;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+            margin-top: 12px;
+        }
+
+        .payment-success.active {
+            display: block;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .hero-nav {
+                padding: 24px 28px;
+            }
+
+            .hero-name {
+                font-size: 9px;
+                letter-spacing: 0.25em;
+            }
+
+            .hero-links {
+                gap: 12px;
+            }
+
+            .hero-links a {
+                font-size: 10px;
+                letter-spacing: 0.25em;
+            }
+
+            .about-panel {
+                width: 100%;
+                transform: translateY(100%);
+                padding: 60px 28px 40px;
+            }
+
+            .about-panel.active {
+                transform: translateY(0);
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .about-panel h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .about-portrait {
+                max-width: 220px;
+            }
+
+            .about-panel .bio {
+                font-size: 13px;
+            }
+
+            .contact-panel {
+                width: 100%;
+                transform: translateY(100%);
+                padding: 60px 28px 32px;
+                gap: 28px;
+            }
+
+            .contact-panel.active {
+                transform: translateY(0);
+            }
+
+            .contact-heading {
+                font-size: clamp(30px, 12vw, 42px);
+            }
+
+            .contact-details {
+                font-size: 14px;
+            }
+
+            .gallery-overlay {
+                padding: 64px 18px 18px;
+            }
+
+            .gallery-content {
+                width: 92vw;
+                height: calc(100vh - 82px);
+                gap: 18px;
+            }
+
+            .gallery-dots {
+                justify-content: center;
+                gap: 8px;
+                min-height: 34px;
+            }
+
+            .gallery-dot {
+                width: 26px;
+                height: 26px;
+            }
+
+            .shop-overlay {
+                padding: 60px 24px 40px;
+            }
+
+            .shop-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .shop-heading {
+                margin-bottom: 24px;
+            }
+
+            .product-detail-overlay {
+                padding: 60px 24px 32px;
+            }
+
+            .product-detail-layout {
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+
+            .payment-row {
+                grid-template-columns: 1fr;
+            }
+
+            .close-x {
+                top: 20px;
+                right: 24px;
+                font-size: 20px;
+            }
+
+            .back-arrow {
+                top: 20px;
+                left: 24px;
+                font-size: 24px;
+            }
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ddd;
+        }
+    </style>
+    <base target="_blank">
+</head>
+
+<body>
+
+    <!-- HERO -->
+    <section class="hero">
+        <img src="/assets/artwork/main-yellow.png" alt="Painting by Ilse Sørensen Murdock">
+        <div class="hero-nav">
+            <div class="hero-name" tabindex="0">Ilse Sørensen Murdock</div>
+            <nav class="hero-links">
+                <a onclick="openGallery()">Gallery</a>
+                <a onclick="openAbout()">About</a>
+                <a onclick="openContact()">Contact</a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- ABOUT PANEL -->
+    <div class="about-panel" id="aboutPanel">
+        <button class="close-x" onclick="closeAbout()">×</button>
+        <div class="about-content">
+            <div class="about-media">
+                <img class="about-portrait" src="./assets/images/ilse-portrait.jpg"
+                    alt="Portrait of Ilse Sørensen Murdock">
+            </div>
+            <div class="about-copy">
+                <h2>Ilse Sørensen Murdock</h2>
+                <div class="bio">
+                    <p>Born in Copenhagen, Ilse Sørensen Murdock works between her studio in Berlin and the coast of
+                        Jutland.
+                        Her practice spans painting, drawing, and site-specific installation, grounded in a decades-long
+                        meditation on light, surface, and silence.</p>
+                    <p>After studying at the Royal Danish Academy of Fine Arts, she spent formative years in the studio
+                        of Per
+                        Kirkeby, absorbing a Nordic sensibility that privileges restraint over declaration. Her work has
+                        been
+                        shown at Kunsthal Charlottenborg, Den Frie, and Galerie Nordenhake.</p>
+                    <p>Each piece begins with observation — the way winter light falls across plaster, the trace of salt
+                        on
+                        linen, the moment before a form resolves. What remains is never explanation, only presence.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="contact-panel" id="contactPanel">
+        <button class="close-x" onclick="closeContact()">×</button>
+        <div class="contact-section">
+            <h2 class="contact-heading">Mailing List</h2>
+            <form class="contact-form" onsubmit="submitContactForm(event)">
+                <input class="contact-input" type="email" placeholder="Email" required>
+                <button class="contact-submit" type="submit">Submit</button>
+            </form>
+        </div>
+        <div class="contact-section">
+            <h2 class="contact-heading">Contact</h2>
+            <div class="contact-details">
+                <p>ilsemurdock@yahoo.com</p>
+                <p>Instagram: @ilsesorensenmurdock</p>
+                <p>Studio<br>Berlin, Germany</p>
+            </div>
+        </div>
+        <div class="contact-cap">
+            <button class="contact-cap-button" type="button" onclick="openShopFromContactCap()"
+                title="View works for sale">
+                <img src="/assets/caps/contact-cap.png" alt="Cap">
+            </button>
+        </div>
+    </div>
+
+    <!-- GALLERY OVERLAY -->
+    <div class="gallery-overlay" id="galleryOverlay">
+        <button class="close-x" onclick="closeGallery()">×</button>
+        <div class="gallery-content">
+            <div class="gallery-dots" id="galleryDots"></div>
+            <div class="gallery-stage">
+                <img class="gallery-main-image" id="galleryMainImage" src="/assets/artwork/main-yellow.png"
+                    alt="Gallery artwork">
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOP OVERLAY -->
+    <div class="shop-overlay" id="shopOverlay">
+        <button class="close-x" onclick="closeShop()">×</button>
+        <h2 class="shop-heading">Works Available</h2>
+        <div class="shop-grid" id="shopGrid">
+            <!-- Generated by JS -->
+        </div>
+    </div>
+
+    <div class="product-detail-overlay" id="productDetailOverlay">
+        <button class="back-arrow" type="button" onclick="closeProductDetail()">←</button>
+        <div class="product-detail-layout">
+            <div class="product-detail-image-wrap">
+                <img id="detailImage" src="" alt="">
+            </div>
+            <div class="product-detail-copy">
+                <h2 id="detailTitle"></h2>
+                <div class="detail-year" id="detailYear"></div>
+                <div class="detail-medium" id="detailMedium"></div>
+                <div class="detail-price" id="detailPrice"></div>
+                <p class="detail-description" id="detailDescription"></p>
+                <div class="variation-label">Variations</div>
+                <div class="variation-swatches" id="variationSwatches"></div>
+                <button class="purchase-button" type="button" onclick="openPaymentModal()">Purchase</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-card">
+            <button class="close-x" type="button" onclick="closePaymentModal()">×</button>
+            <h3 id="paymentTitle"></h3>
+            <div class="payment-price" id="paymentPrice"></div>
+            <form class="payment-form" id="paymentForm" onsubmit="completePurchase(event)">
+                <input type="text" name="name" placeholder="Name" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="text" name="card" placeholder="Card number" required>
+                <div class="payment-row">
+                    <input type="text" name="expiry" placeholder="Expiry" required>
+                    <input type="text" name="cvv" placeholder="CVV" required>
+                </div>
+                <button class="payment-submit" type="submit">Complete Purchase</button>
+            </form>
+            <div class="payment-success" id="paymentSuccess">Thank you. We will be in touch to confirm your order.</div>
+        </div>
+    </div>
+
+    <script>
+        const artworkUrls = [
+            'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=800&q=80',
+            'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=800&q=80',
+            'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&q=80',
+            'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=800&q=80',
+            'https://images.unsplash.com/photo-1549490349-8643362247b5?w=800&q=80',
+            'https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=800&q=80'
+        ];
+
+        // Replace these files in /assets/caps and /assets/artwork without changing code.
+        const galleryPaintings = [
+            { name: 'Yellow', cap: '/assets/caps/yellow.png', artwork: '/assets/artwork/main-yellow.png' },
+            { name: 'Red', cap: '/assets/caps/red.png', artwork: '/assets/artwork/main-red.png' },
+            { name: 'Blue', cap: '/assets/caps/blue.png', artwork: '/assets/artwork/main-blue.png' },
+            { name: 'Green', cap: '/assets/caps/green.png', artwork: '/assets/artwork/main-green.png' },
+            { name: 'Pink', cap: '/assets/caps/pink.png', artwork: '/assets/artwork/main-pink.png' },
+            { name: 'Purple', cap: '/assets/caps/purple.png', artwork: '/assets/artwork/main-purple.png' },
+            { name: 'Orange', cap: '/assets/caps/orange.png', artwork: '/assets/artwork/main-orange.png' },
+            { name: 'Black', cap: '/assets/caps/black.png', artwork: '/assets/artwork/main-black.png' },
+            { name: 'Teal', cap: '/assets/caps/teal.png', artwork: '/assets/artwork/main-teal.png' }
+        ];
+
+        const shopItems = [
+            {
+                image: artworkUrls[0],
+                title: 'Silent Coast',
+                year: '2019',
+                medium: 'Oil on linen, 80 × 60 cm',
+                price: '€800',
+                description: 'A layered composition of pigment, gathered fragments, and warm coastal light. The surface moves between painting and object, holding texture close to the eye.',
+                variations: [artworkUrls[0], artworkUrls[1], artworkUrls[2]]
+            },
+            {
+                image: artworkUrls[1],
+                title: 'Salt Archive',
+                year: '2020',
+                medium: 'Pigment on canvas, 90 × 70 cm',
+                price: '€1,250',
+                description: 'This work gathers bright colour fields with assembled material traces and a soft architectural rhythm. It balances raw edges with careful tonal spacing.',
+                variations: [artworkUrls[1], artworkUrls[2], artworkUrls[3]]
+            },
+            {
+                image: artworkUrls[2],
+                title: 'Winter Room',
+                year: '2021',
+                medium: 'Oil on linen, 100 × 80 cm',
+                price: '€1,900',
+                description: 'Dense, colourful planes are offset by quieter marks and tactile interruptions. The piece feels assembled over time, with each layer still visible in the final surface.',
+                variations: [artworkUrls[2], artworkUrls[3], artworkUrls[4]]
+            },
+            {
+                image: artworkUrls[3],
+                title: 'North Window',
+                year: '2022',
+                medium: 'Tempera on board, 120 × 90 cm',
+                price: '€2,600',
+                description: 'A brighter palette opens into a grid of painted fragments, objects, and softened shadows. It suggests a studio table translated into a luminous wall work.',
+                variations: [artworkUrls[3], artworkUrls[4], artworkUrls[5]]
+            },
+            {
+                image: artworkUrls[4],
+                title: 'Tidal Study',
+                year: '2023',
+                medium: 'Mixed media on linen, 120 × 100 cm',
+                price: '€3,400',
+                description: 'Colour and texture carry equal weight here, moving from saturated passages into rubbed-back neutral areas. The result is tactile, playful, and quietly architectural.',
+                variations: [artworkUrls[4], artworkUrls[5], artworkUrls[0]]
+            },
+            {
+                image: artworkUrls[5],
+                title: 'Quiet Horizon',
+                year: '2024',
+                medium: 'Oil on panel, 140 × 110 cm',
+                price: '€4,200',
+                description: 'This larger composition brings together stacked forms, vivid paint, and found-material energy. It holds a sense of rhythm and weight while remaining open and airy.',
+                variations: [artworkUrls[5], artworkUrls[0], artworkUrls[1]]
+            }
+        ];
+
+        const galleryDots = document.getElementById('galleryDots');
+        const galleryMainImage = document.getElementById('galleryMainImage');
+
+        galleryPaintings.forEach((painting, index) => {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = `gallery-dot${index === 0 ? ' active' : ''}`;
+            dot.setAttribute('aria-label', `Show ${painting.name} artwork`);
+            dot.innerHTML = `<img src="${painting.cap}" alt="${painting.name} cap" loading="lazy">`;
+            dot.onclick = () => {
+                galleryMainImage.src = painting.artwork;
+                galleryMainImage.alt = `${painting.name} artwork`;
+                setActiveGalleryDot(index);
+            };
+            galleryDots.appendChild(dot);
+        });
+
+        function setActiveGalleryDot(index) {
+            Array.from(galleryDots.children).forEach((dot, dotIndex) => {
+                dot.classList.toggle('active', dotIndex === index);
+            });
+        }
+
+        // Build shop
+        const shopGrid = document.getElementById('shopGrid');
+        shopItems.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'shop-item';
+            div.innerHTML = `
+      <img src="${item.image}" alt="${item.title}" loading="lazy" onclick="openProductDetail(${index})">
+      <div class="title" onclick="openProductDetail(${index})">${item.title}</div>
+      <div class="year">${item.year}</div>
+      <div class="medium">${item.medium}</div>
+      <div class="price">${item.price}</div>
+            `;
+            shopGrid.appendChild(div);
+        });
+
+        // Panel controls
+        function openAbout() {
+            closeContact();
+            document.getElementById('aboutPanel').classList.add('active');
+        }
+        function closeAbout() {
+            document.getElementById('aboutPanel').classList.remove('active');
+        }
+
+        function openGallery() {
+            document.getElementById('galleryOverlay').classList.add('active');
+            galleryMainImage.src = galleryPaintings[0].artwork;
+            galleryMainImage.alt = `${galleryPaintings[0].name} artwork`;
+            setActiveGalleryDot(0);
+        }
+        function closeGallery() {
+            document.getElementById('galleryOverlay').classList.remove('active');
+        }
+
+        function closeShop() {
+            const shopOverlay = document.getElementById('shopOverlay');
+            shopOverlay.classList.remove('active');
+            closeProductDetail();
+            closePaymentModal();
+            setTimeout(() => {
+                if (!shopOverlay.classList.contains('active')) {
+                    shopOverlay.style.display = 'none';
+                }
+            }, 400);
+        }
+
+        function openContact() {
+            closeAbout();
+            document.getElementById('contactPanel').classList.add('active');
+        }
+        function closeContact() {
+            document.getElementById('contactPanel').classList.remove('active');
+        }
+        function submitContactForm(event) {
+            event.preventDefault();
+            event.currentTarget.reset();
+        }
+        function openShopFromContactCap() {
+            closeContact();
+            const shopOverlay = document.getElementById('shopOverlay');
+            shopOverlay.style.display = 'block';
+            requestAnimationFrame(() => {
+                shopOverlay.classList.add('active');
+            });
+        }
+        let currentProductIndex = null;
+
+        function openProductDetail(index) {
+            currentProductIndex = index;
+            const item = shopItems[index];
+            document.getElementById('detailImage').src = item.variations[0];
+            document.getElementById('detailImage').alt = item.title;
+            document.getElementById('detailTitle').textContent = item.title;
+            document.getElementById('detailYear').textContent = item.year;
+            document.getElementById('detailMedium').textContent = item.medium;
+            document.getElementById('detailPrice').textContent = item.price;
+            document.getElementById('detailDescription').textContent = item.description;
+            renderVariationSwatches(item);
+            document.getElementById('productDetailOverlay').classList.add('active');
+        }
+
+        function closeProductDetail() {
+            document.getElementById('productDetailOverlay').classList.remove('active');
+        }
+
+        function renderVariationSwatches(item) {
+            const swatches = document.getElementById('variationSwatches');
+            swatches.innerHTML = '';
+            const swatchColors = ['#d36f4f', '#8ca18e', '#4a5d8f'];
+            item.variations.forEach((variation, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `variation-swatch${index === 0 ? ' active' : ''}`;
+                button.style.backgroundColor = swatchColors[index % swatchColors.length];
+                button.setAttribute('aria-label', `Variation ${index + 1}`);
+                button.onclick = () => {
+                    document.getElementById('detailImage').src = variation;
+                    Array.from(swatches.children).forEach((child) => child.classList.remove('active'));
+                    button.classList.add('active');
+                };
+                swatches.appendChild(button);
+            });
+        }
+
+        function openPaymentModal() {
+            if (currentProductIndex === null) {
+                return;
+            }
+            const item = shopItems[currentProductIndex];
+            document.getElementById('paymentTitle').textContent = item.title;
+            document.getElementById('paymentPrice').textContent = item.price;
+            document.getElementById('paymentForm').reset();
+            document.getElementById('paymentForm').style.display = 'grid';
+            document.getElementById('paymentSuccess').classList.remove('active');
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            document.getElementById('paymentForm').style.display = 'grid';
+            document.getElementById('paymentSuccess').classList.remove('active');
+        }
+
+        function completePurchase(event) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            form.style.display = 'none';
+            document.getElementById('paymentSuccess').classList.add('active');
+            setTimeout(() => {
+                closePaymentModal();
+            }, 1200);
+        }
+
+        // Close panels on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAbout();
+                closeContact();
+                closeGallery();
+                closeShop();
+                closePaymentModal();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
