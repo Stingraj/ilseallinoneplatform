@@ -14,6 +14,18 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "public/vendor/**",
   ]),
+  // The 3D scene is imperative by nature: three.js objects, cameras and lights are mutated every frame inside
+  // useFrame, which is how react-three-fiber is meant to be used. The React Compiler's immutability and purity
+  // rules do not apply to those objects.
+  {
+    files: ["src/components/gallery3d/**"],
+    rules: {
+      "react-hooks/immutability": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
   // Code carried over unchanged from the archive app and the Email Studio (see INTEGRATION_PLAN.md). It is kept
   // byte-for-byte where possible, so its pre-existing lint findings are reported as warnings, not fixed in place.
   {

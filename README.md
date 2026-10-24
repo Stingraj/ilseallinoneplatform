@@ -30,6 +30,7 @@ Without Supabase settings the public site renders empty states and the studio st
 | File | Contents |
 |---|---|
 | `docs/AUDIT.md` | Layer 1 audit of the original four projects |
+| `docs/GALLERY_WALK.md` | The 3D gallery: design, controls, performance, accessibility, recovery |
 | `ARCHITECTURE.md` | System diagram, routes, security model |
 | `DESIGN_SYSTEM.md` | Gallery and studio design tokens and components |
 | `INTEGRATION_PLAN.md` | What came from where, every change to preserved code, n8n contract |

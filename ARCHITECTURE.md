@@ -50,6 +50,6 @@ Browser ──► src/proxy.ts ── refreshes the Supabase session; /studio on
 
 ## Route map
 
-Public: `/`, `/artworks`, `/artworks/[slug]`, `/collections`, `/collections/[slug]`, `/about`, `/exhibitions`, `/exhibitions/[slug]`, `/contact`, `/viewing/[token]` (noindex), `/sitemap.xml`, `/robots.txt`.
+Public: `/`, `/gallery-walk` (3D museum; see docs/GALLERY_WALK.md), `/artworks`, `/artworks/[slug]`, `/collections`, `/collections/[slug]`, `/about`, `/exhibitions`, `/exhibitions/[slug]`, `/contact`, `/viewing/[token]` (noindex), `/sitemap.xml`, `/robots.txt`.
 
 Studio: `/studio` (Overview), `/studio/website`, `/studio/website/profile`, `/studio/archive`, `/studio/archive/new`, `/studio/archive/[id]`, `/studio/archive/catalog`, `/studio/email`, `/studio/collectors`, `/studio/collectors/[id]`, `/studio/enquiries`, `/studio/sales`, `/studio/invoices`, `/studio/exhibitions`, `/studio/exhibitions/[id|new]`, `/studio/viewing-rooms`, `/studio/tools`. Old `/dashboard/*` URLs redirect (308).

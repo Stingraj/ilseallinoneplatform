@@ -44,7 +44,8 @@ No feature is marked Prod-ready yet: nothing has run against the real Supabase p
 | Overview KPIs (real data only, time filter) | Overview | New · Blocked: migration for enquiries/views/campaigns |
 | Anonymous analytics (no cookies, DNT respected) | Overview | New · Blocked: migration |
 | Security fixes S1–S5 (RLS, buckets) | Database | New · Tested (local Postgres) · Blocked: staging apply |
-| ARVISTA 3D gallery | Public | Not used (no licence); design inspiration only |
+| 3D Gallery Walk (`/gallery-walk`): original multi-room museum from archive data, guided + free movement, collision, spotlights, inspect view, 2D fallback, WebGL recovery | Public | New · Tested (unit + browser, local fixtures) · Blocked: real archive images and non-Chrome browsers; see docs/GALLERY_WALK.md |
+| ARVISTA code | Public | Not used (no licence); creative reference only |
 | Journal | Public | Not built: no real editorial content yet (blueprint marks it optional) |
 
 ## Blockers
