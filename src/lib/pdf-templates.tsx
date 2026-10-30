@@ -80,6 +80,9 @@ interface ArtistCatalogPDFProps {
   sales: Sale[];
   profile?: ArtistProfileRow | null;
   showPrice: boolean;
+  /** Optional cover heading, e.g. an exhibition title, venue and dates. The default cover is unchanged. */
+  coverTitle?: string;
+  coverSubtitle?: string;
 }
 
 function dash(value: string | number | null | undefined) {
@@ -96,10 +99,12 @@ function getContactLines(profile?: ArtistProfileRow | null) {
   ].filter(Boolean);
 }
 
-function CoverPage({ profile }: { profile?: ArtistProfileRow | null }) {
+function CoverPage({ profile, title, subtitle }: { profile?: ArtistProfileRow | null; title?: string; subtitle?: string }) {
   return (
     <Page size="A4" style={styles.cover}>
-      <Text style={styles.coverName}>{getProfileDisplayName(profile)}</Text>
+      {title ? <Text style={styles.coverName}>{title}</Text> : null}
+      {subtitle ? <Text style={styles.coverContact}>{subtitle}</Text> : null}
+      <Text style={title ? styles.coverContact : styles.coverName}>{getProfileDisplayName(profile)}</Text>
       {getContactLines(profile).map((line) => (
         <Text key={line} style={styles.coverContact}>{line}</Text>
       ))}
@@ -132,10 +137,10 @@ function ArtworkDetailLines({ artwork, sale, showPrice }: { artwork: Artwork; sa
   );
 }
 
-export function ArtistCatalogPDF({ artworks, sales, profile, showPrice }: ArtistCatalogPDFProps) {
+export function ArtistCatalogPDF({ artworks, sales, profile, showPrice, coverTitle, coverSubtitle }: ArtistCatalogPDFProps) {
   return (
     <Document>
-      <CoverPage profile={profile} />
+      <CoverPage profile={profile} title={coverTitle} subtitle={coverSubtitle} />
 
       {artworks.map((artwork) => {
         const sale = getSaleForArtwork(sales, artwork);

@@ -17,12 +17,15 @@ apply() {
 }
 apply
 "${PSQL[@]}" "${DB[@]}" -f supabase/tests/10_rls_checks.sql
+"${PSQL[@]}" "${DB[@]}" -f supabase/tests/20_workflow_checks.sql
 echo "rollback"
 "${PSQL[@]}" "${DB[@]}" -c 'delete from public.enquiries; delete from public.contacts; delete from public.studio_owners; delete from auth.users;'
+"${PSQL[@]}" "${DB[@]}" -f supabase/rollback/20261030000000_studio_workflows.down.sql
 "${PSQL[@]}" "${DB[@]}" -f supabase/rollback/20261025000100_studio_additive_schema.down.sql
 "${PSQL[@]}" "${DB[@]}" -f supabase/rollback/20261025000000_studio_owner_security.down.sql
 echo "re-apply after rollback"
-"${PSQL[@]}" "${DB[@]}" -c 'delete from public.artworks;'
+"${PSQL[@]}" "${DB[@]}" -c 'delete from public.exhibitions; delete from public.artworks;'
 apply
 "${PSQL[@]}" "${DB[@]}" -f supabase/tests/10_rls_checks.sql
+"${PSQL[@]}" "${DB[@]}" -f supabase/tests/20_workflow_checks.sql
 echo "ALL MIGRATION TESTS PASSED"

@@ -1,10 +1,12 @@
 import {
+  BarChart3,
   Building2,
   FileStack,
   Globe,
   Images,
   LayoutDashboard,
   Mail,
+  Settings,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -12,35 +14,29 @@ import {
 export interface StudioSection {
   key: string;
   name: string;
+  /** Short label for the mobile tab bar. */
+  short: string;
   href: string;
   icon: LucideIcon;
-  /** Section accent, used for the active nav pill, page header band and highlights. */
+  group: 'Main' | 'Tools' | 'General';
+  /** Section accent, used for small highlights. */
   accent: string;
   /** Paths (prefixes) that belong to this section. */
   match: string[];
   links?: { name: string; href: string }[];
 }
 
+/** The one navigation registry: sidebar, mobile tabs, "More" sheet and breadcrumbs all read from it. */
 export const STUDIO_SECTIONS: StudioSection[] = [
-  { key: 'overview', name: 'Overview', href: '/studio', icon: LayoutDashboard, accent: '#B9A2FF', match: [] },
-  {
-    key: 'website',
-    name: 'Website',
-    href: '/studio/website',
-    icon: Globe,
-    accent: '#F36C65',
-    match: ['/studio/website'],
-    links: [
-      { name: 'Presentation', href: '/studio/website' },
-      { name: 'Artist profile', href: '/studio/website/profile' },
-    ],
-  },
+  { key: 'overview', name: 'Overview', short: 'Overview', href: '/studio', icon: LayoutDashboard, group: 'Main', accent: '#8C4E2B', match: [] },
   {
     key: 'archive',
     name: 'Artwork Archive',
+    short: 'Archive',
     href: '/studio/archive',
     icon: Images,
-    accent: '#5B8DEF',
+    group: 'Main',
+    accent: '#8C4E2B',
     match: ['/studio/archive'],
     links: [
       { name: 'Artworks & PDFs', href: '/studio/archive' },
@@ -48,35 +44,60 @@ export const STUDIO_SECTIONS: StudioSection[] = [
       { name: 'Add artwork', href: '/studio/archive/new' },
     ],
   },
-  { key: 'email', name: 'Email Studio', href: '/studio/email', icon: Mail, accent: '#F6CE61', match: ['/studio/email'] },
+  {
+    key: 'website',
+    name: 'Portfolio Website',
+    short: 'Website',
+    href: '/studio/website',
+    icon: Globe,
+    group: 'Main',
+    accent: '#8C4E2B',
+    match: ['/studio/website'],
+    links: [
+      { name: 'Publishing', href: '/studio/website' },
+      { name: 'Artist profile', href: '/studio/website/profile' },
+    ],
+  },
   {
     key: 'sales',
-    name: 'Collectors & Sales',
+    name: 'Collectors',
+    short: 'Collectors',
     href: '/studio/collectors',
     icon: Users,
-    accent: '#7FD8B0',
+    group: 'Main',
+    accent: '#8C4E2B',
     match: ['/studio/collectors', '/studio/sales', '/studio/enquiries', '/studio/invoices'],
     links: [
       { name: 'Collectors', href: '/studio/collectors' },
       { name: 'Enquiries', href: '/studio/enquiries' },
-      { name: 'Sales tracker', href: '/studio/sales' },
+      { name: 'Sales', href: '/studio/sales' },
       { name: 'Invoices', href: '/studio/invoices' },
     ],
   },
+  { key: 'email', name: 'Email Studio', short: 'Email', href: '/studio/email', icon: Mail, group: 'Main', accent: '#8C4E2B', match: ['/studio/email'] },
   {
     key: 'exhibitions',
     name: 'Exhibitions',
+    short: 'Exhibitions',
     href: '/studio/exhibitions',
     icon: Building2,
-    accent: '#FFB38A',
+    group: 'Main',
+    accent: '#8C4E2B',
     match: ['/studio/exhibitions', '/studio/viewing-rooms'],
     links: [
       { name: 'Exhibitions', href: '/studio/exhibitions' },
       { name: 'Viewing rooms', href: '/studio/viewing-rooms' },
     ],
   },
-  { key: 'tools', name: 'PDF & Tools', href: '/studio/tools', icon: FileStack, accent: '#C9B8F5', match: ['/studio/tools'] },
+  { key: 'tools', name: 'Documents & PDFs', short: 'Documents', href: '/studio/tools', icon: FileStack, group: 'Tools', accent: '#8C4E2B', match: ['/studio/tools'] },
+  { key: 'reports', name: 'Reports', short: 'Reports', href: '/studio/reports', icon: BarChart3, group: 'Tools', accent: '#8C4E2B', match: ['/studio/reports'] },
+  { key: 'settings', name: 'Settings', short: 'Settings', href: '/studio/settings', icon: Settings, group: 'General', accent: '#8C4E2B', match: ['/studio/settings'] },
 ];
+
+export const SECTION_GROUPS = ['Main', 'Tools', 'General'] as const;
+
+/** Bottom tabs on phones; everything else is under "More". */
+export const MOBILE_TABS = ['overview', 'archive', 'email'];
 
 export function findSection(pathname: string): StudioSection {
   return (

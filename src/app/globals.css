@@ -107,16 +107,203 @@
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Studio dashboard: each section sets --section-accent on its layout
+   Studio (authenticated dashboard only). Warm translucent frame, opaque work surfaces.
+   Every token is scoped to .studio so the public site is never affected.
    --------------------------------------------------------------------------------------------- */
-@layer components {
-  .studio {
-    --section-accent: #b9a2ff;
-    @apply bg-studio-base font-sans text-slate-900;
+.studio {
+  --studio-canvas: #e7e3de;
+  --studio-atmosphere: #d8b39a;
+  --studio-shell: rgba(250, 249, 247, 0.78);
+  --studio-surface: rgba(255, 255, 255, 0.94);
+  --studio-surface-solid: #faf9f7;
+  --studio-ink: #18212b;
+  --studio-muted: #5c646c;
+  --studio-line: #d6d2cd;
+  --studio-accent: #8c4e2b;
+  --studio-action: #202322;
+  --studio-focus: #2456b8;
+  --section-accent: var(--studio-accent);
+
+  /* shadcn/ui tokens, re-pointed for the studio only (HSL triplets) */
+  --background: 30 16% 97%;
+  --foreground: 211 28% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 211 28% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 211 28% 13%;
+  --primary: 150 4% 13%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 30 12% 94%;
+  --secondary-foreground: 211 28% 13%;
+  --muted: 30 12% 94%;
+  --muted-foreground: 210 8% 39%;
+  --accent: 30 14% 92%;
+  --accent-foreground: 211 28% 13%;
+  --border: 30 8% 82%;
+  --input: 30 8% 82%;
+  --ring: 220 67% 43%;
+  --radius: 0.7rem;
+
+  color: var(--studio-ink);
+  background-color: var(--studio-canvas);
+  background-image: radial-gradient(1200px 700px at 0% 0%, rgba(216, 179, 154, 0.55), rgba(216, 179, 154, 0) 70%);
+  background-attachment: fixed;
+  font-family: var(--font-inter), 'Helvetica Neue', Arial, sans-serif;
+}
+.studio :focus-visible {
+  outline: 2px solid var(--studio-focus);
+  outline-offset: 2px;
+}
+.studio-frame {
+  background: var(--studio-shell);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 24px 60px -30px rgba(70, 45, 30, 0.35);
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  @media (min-width: 768px) {
+    .studio-frame {
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+    }
   }
-  .studio-card {
-    @apply rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)];
-  }
+}
+.studio-card {
+  background: var(--studio-surface);
+  border: 1px solid rgba(214, 210, 205, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(24, 33, 43, 0.04);
+}
+.studio-card-dark {
+  background: linear-gradient(160deg, #2a2522 0%, #1b1d1d 60%);
+  color: #f6f1ec;
+  border-radius: 20px;
+}
+.studio-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--studio-muted);
+}
+.studio-nav-link {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--studio-muted);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.studio-nav-link:hover {
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--studio-ink);
+}
+.studio-nav-link[aria-current='page'] {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--studio-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(24, 33, 43, 0.06), inset 0 0 0 1px rgba(214, 210, 205, 0.8);
+}
+.studio-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--studio-line);
+}
+.studio-tab {
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--studio-muted);
+  min-height: 44px;
+}
+.studio-tab:hover {
+  color: var(--studio-ink);
+}
+.studio-tab[aria-current='page'],
+.studio-tab[aria-selected='true'] {
+  border-bottom-color: var(--studio-ink);
+  color: var(--studio-ink);
+  font-weight: 600;
+}
+.studio-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--studio-line);
+  background: #fff;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--studio-ink);
+  white-space: nowrap;
+}
+.studio-pill-success {
+  border-color: #cfe5d7;
+  background: #e8f3ec;
+  color: #17613d;
+}
+.studio-pill-warning {
+  border-color: #f1dfb8;
+  background: #fff3dc;
+  color: #865313;
+}
+.studio-pill-danger {
+  border-color: #f2cccc;
+  background: #fcecec;
+  color: #a12d2d;
+}
+.studio-table-wrap {
+  overflow-x: auto;
+  border-radius: 20px;
+  border: 1px solid rgba(214, 210, 205, 0.7);
+  background: var(--studio-surface-solid);
+}
+.studio-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.studio-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--studio-surface-solid);
+  border-bottom: 1px solid var(--studio-line);
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--studio-muted);
+}
+.studio-table tbody td {
+  border-bottom: 1px solid rgba(214, 210, 205, 0.55);
+  padding: 14px 16px;
+  vertical-align: middle;
+}
+.studio-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.studio-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.7);
+}
+.studio-btn-secondary {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--studio-line);
+  background: #fff;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--studio-ink);
+}
+.studio-btn-secondary:hover {
+  border-color: #b9b3ad;
 }
 
 @media (prefers-reduced-motion: reduce) {

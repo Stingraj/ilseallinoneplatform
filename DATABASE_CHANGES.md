@@ -50,3 +50,19 @@ Rollback: `supabase/rollback/20261025000100_studio_additive_schema.down.sql` (dr
 - The archive's consolidated migration seeds three demo artworks with Unsplash images ("Morning Light", "Forest Edge", "Coastal Study"). If they exist in production they are public today; the new site shows them without images. Delete or mark them Private.
 - `contacts` may contain duplicate emails; the new code de-duplicates on insert but does not merge existing duplicates.
 - `private_rooms.passcode` remains plaintext (existing column), now readable only by the owner.
+
+## 20261030000000_studio_workflows.sql (build pack T02/T08–T13)
+
+| Object | Purpose |
+|---|---|
+| `exhibition_artworks.position` + index; `exhibitions.updated_at` | Curated order; stale-edit detection |
+| `save_exhibition(p_id, p_expected_updated_at, p_fields, p_artwork_ids)` | One transaction: owner check, title/date/artwork validation, de-duplication, stale-edit guard (40001), membership rewritten with positions. Granted to `authenticated` only |
+| view `website_exhibition_artworks` | Recreated with `position` (same columns otherwise) |
+| `email_campaign_drafts` | Server drafts (revision-guarded) incl. exhibition invitations |
+| `email_dispatch_operations` | One row per send attempt; unique `operation_key` makes duplicate clicks/retries harmless; outcome `dispatching` / `accepted_by_workflow` / `failed` / `unknown` |
+| `marketing_unsubscribe_tokens` | SHA-256 hash of each recipient's token only; `used_at` |
+| `studio_settings` | Single row: timezone, locale |
+
+All new tables: RLS on, owner-only policies, no anon grants. Tested locally with `supabase/tests/20_workflow_checks.sql` (order kept, failed save leaves membership intact, bad dates rejected, reorder, stale edit rejected, duplicate operation key rejected, non-owner and anon blocked), including rollback and re-apply.
+
+Rollback: `supabase/rollback/20261030000000_studio_workflows.down.sql` (roll back before the two earlier migrations).

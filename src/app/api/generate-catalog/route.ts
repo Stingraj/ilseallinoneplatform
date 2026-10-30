@@ -101,6 +101,10 @@ export async function POST(request: NextRequest) {
     const artworkIds = Array.isArray(body.artworkIds) ? body.artworkIds : [];
     const sortOrder = typeof body.sortOrder === 'string' ? body.sortOrder : 'custom';
     const layout = body.layout === 'table' ? 'table' : 'artwork-pages';
+    // Optional cover text (exhibition catalogues). Plain strings only, bounded.
+    const coverTitle = typeof body.coverTitle === 'string' ? body.coverTitle.slice(0, 200) : undefined;
+    const coverSubtitle = typeof body.coverSubtitle === 'string' ? body.coverSubtitle.slice(0, 300) : undefined;
+    const fileName = typeof body.fileName === 'string' && /^[\w.-]{1,80}$/.test(body.fileName) ? body.fileName : 'available-works';
 
     if (artworkIds.length === 0) {
       return NextResponse.json({ error: 'artworkIds array is required' }, { status: 400 });
@@ -154,6 +158,7 @@ export async function POST(request: NextRequest) {
       sales: (sales ?? []) as Sale[],
       profile,
       showPrice: settings?.show_price_on_pdf ?? true,
+      ...(layout === 'table' ? {} : { coverTitle, coverSubtitle }),
     }) as unknown as Parameters<typeof renderToBuffer>[0];
 
     const pdfBuffer = await renderToBuffer(pdfDocument);
@@ -161,7 +166,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="available-works.pdf"',
+        'Content-Disposition': `attachment; filename="${fileName}.pdf"`,
       },
     });
   } catch (error: any) {
