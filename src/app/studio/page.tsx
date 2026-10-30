@@ -7,6 +7,7 @@ import { SetupNotice } from '@/components/studio/setup-notice';
 import { exhibitionDates } from '@/lib/email/invitation';
 import { MIGRATION_HINT, isMissingSchema, requireOwnerPage } from '@/lib/studio/data';
 import { getStudioSettings } from '@/lib/studio/settings';
+import { ArtworkThumb } from '@/components/studio/artwork-thumb';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,8 +106,7 @@ export default async function OverviewPage() {
                   <li key={a.id}>
                     <Link href={`/studio/archive/${a.id}`} className="group block">
                       <div className="aspect-square overflow-hidden rounded-xl bg-[#efece8] p-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {a.image_url && <img src={a.image_url} alt="" className="h-full w-full object-contain transition group-hover:scale-[1.02]" />}
+                        <ArtworkThumb src={a.image_url} className="transition group-hover:scale-[1.02]" />
                       </div>
                       <p className="mt-2 truncate text-sm font-medium">{a.title}</p>
                       <p className="text-xs text-[color:var(--studio-muted)]">{[a.status, a.year].filter(Boolean).join(' · ')}</p>

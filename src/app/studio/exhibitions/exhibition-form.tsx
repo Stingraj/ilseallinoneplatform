@@ -2,12 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
-import { ArrowDown, ArrowUp, ImageIcon, Plus, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ArtworkThumb } from '@/components/studio/artwork-thumb';
 import { saveExhibitionAction } from './actions';
 
 export interface ArtworkOption {
@@ -109,8 +110,7 @@ export function ExhibitionForm({ initial, artworks, canPublish }: { initial?: Ex
                 <li key={id} className="flex items-center gap-3 p-2.5">
                   <span className="w-6 text-center text-xs font-semibold tabular-nums text-[color:var(--studio-muted)]">{index + 1}</span>
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#efece8]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {artwork?.image_url ? <img src={artwork.image_url} alt="" className="h-full w-full object-contain" /> : <ImageIcon className="h-4 w-4 text-[color:var(--studio-muted)]" aria-hidden />}
+                    <ArtworkThumb src={artwork?.image_url} />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{artwork?.title ?? 'Removed from the archive'}</span>
@@ -148,8 +148,7 @@ export function ExhibitionForm({ initial, artworks, canPublish }: { initial?: Ex
                   aria-label={`Add ${artwork.title}`}
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#efece8]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {artwork.image_url && <img src={artwork.image_url} alt="" className="h-full w-full object-contain" />}
+                    <ArtworkThumb src={artwork.image_url} />
                   </span>
                   <span className="min-w-0 flex-1 truncate text-xs font-medium">{artwork.title}</span>
                   <Plus className="h-3.5 w-3.5 shrink-0 text-[color:var(--studio-muted)] group-hover:text-[color:var(--studio-ink)]" aria-hidden />
