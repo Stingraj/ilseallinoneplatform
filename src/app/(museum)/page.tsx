@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { MuseumLoader } from "@/components/museum/MuseumLoader";
 import { ArtworkDetails } from "@/components/gallery/ArtworkDetails";
 import { ArtistSection } from "@/components/gallery/ArtistSection";
@@ -20,19 +19,6 @@ export default async function Home() {
   const { artworks, error } = await getPublicArtworks();
   const paintings = paintingsFromArchive(artworks);
 
-  // No fabricated works: with nothing published (or no database) the page says so.
-  if (paintings.length === 0) {
-    return (
-      <main className="museum-empty">
-        <h1>{ARTIST.name}</h1>
-        <p>{error ? "The collection could not be loaded right now. Please try again shortly." : "The collection is being prepared. New works will appear here as they are published."}</p>
-        <p>
-          <Link href="/contact">Get in touch</Link>
-        </p>
-      </main>
-    );
-  }
-
   return (
     <>
       <a className="skip-link" href="#collection">
@@ -40,7 +26,10 @@ export default async function Home() {
       </a>
       <main>
         <MuseumLoader paintings={paintings} />
-        <ArtworkDetails paintings={paintings} />
+        <ArtworkDetails
+          paintings={paintings}
+          emptyMessage={error ? "The collection could not be loaded right now. Please try again shortly." : "No works have been published yet. New paintings appear here, and in the museum above, as soon as they are published."}
+        />
         <ArtistSection />
       </main>
     </>

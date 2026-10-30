@@ -10,7 +10,7 @@ import styles from "./ArtworkDetails.module.css";
  * through it (and is what search engines and screen readers see first). Built
  * from the same painting data as the 3D gallery.
  */
-export function ArtworkDetails({ paintings }: { paintings: Painting[] }) {
+export function ArtworkDetails({ paintings, emptyMessage }: { paintings: Painting[]; emptyMessage?: string }) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return (
     <section id="collection" className={styles.collection} aria-labelledby="collection-title" tabIndex={-1}>
@@ -24,6 +24,7 @@ export function ArtworkDetails({ paintings }: { paintings: Painting[] }) {
           <span className={styles.diamond} />
         </div>
       </header>
+      {paintings.length === 0 && emptyMessage && <p className={styles.subtitle}>{emptyMessage}</p>}
       {paintings.map((painting, i) => {
         const { lead, body } = splitDescription(painting.description);
         return (
