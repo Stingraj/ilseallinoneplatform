@@ -20,6 +20,11 @@ test('dimensions: units, preferences and fallbacks', () => {
   assert.ok(Math.abs(inches.longCm - 76.2) < 0.01 && Math.abs(inches.shortCm - 60.96) < 0.01);
   assert.equal(parseDimensions('8 × 10 inches (20 × 25 cm)').longCm, 25);
   assert.equal(parseDimensions('50 x 40').longCm, 50);
+  // Round works are given by diameter; a bare number with no pair is still not guessed.
+  assert.deepEqual(parseDimensions('28 inches diameter').known, true);
+  assert.ok(Math.abs(parseDimensions('28 inches diameter').longCm - 71.12) < 0.01);
+  assert.equal(parseDimensions('16 inches diameter').shortCm, parseDimensions('16 inches diameter').longCm);
+  assert.equal(parseDimensions('19 inches').known, false);
   for (const bad of [null, undefined, '', 'large']) assert.equal(parseDimensions(bad as string).known, false);
 });
 

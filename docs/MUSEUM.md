@@ -33,3 +33,7 @@ Nothing about the collection is written into the code. Names and wording are in 
 - **An image that fails to load** shows the museum's own "image unavailable" panel for that painting only.
 - **Why a loader**: the museum computes its layout, camera route and scroll timeline from the painting list when its modules are first imported, so the list is registered (`content/paintings.ts`) before they load. Changing the archive takes effect on the next page load.
 - Page-level styles are scoped to `.museum-root` (`components/museum/museum-root.css`), so the rest of the website and the studio are unaffected.
+
+## Adding Ilse's photographed works
+
+`node scripts/import-catalog-images.mjs` (run after `supabase/one-shot/ilse-full-setup.sql`) publishes the works from the archive's catalogue staging folder (`elsa-artist-portfolio/public/catalog-imports`). It imports only photographs that are at least 1200 px wide and whose file name exactly matches one catalogue title (15 today; 14 sharp photographs have no catalogue entry and are left out). It crops the plain wall away, resizes to 2400 px and uploads to the `artwork-images` bucket, then creates or updates each work by catalogue number, so re-running never duplicates. Only title, year, medium, dimensions and catalogue number are imported; provenance, exhibitions and locations (which can name private collectors) are not. Imported works have status "Available" (the table default) and no price: review each one in Studio > Artwork Archive. `--dry-run` shows the plan without touching anything.
