@@ -38,6 +38,10 @@ const nextConfig: NextConfig = {
       ? [{ protocol: 'https', hostname: supabaseHost, pathname: '/storage/v1/object/public/**' }]
       : [],
   },
+  async redirects() {
+    // The previous 3D gallery lived here; the museum is now the home page.
+    return [{ source: '/gallery-walk', destination: '/', permanent: true }];
+  },
   async headers() {
     return [
       { source: '/(.*)', headers: securityHeaders },

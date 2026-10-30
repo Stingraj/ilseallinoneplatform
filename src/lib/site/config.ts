@@ -12,7 +12,6 @@ export const SITE_NAV = [
   { name: 'Works', href: '/artworks' },
   { name: 'Collections', href: '/collections' },
   { name: 'Exhibitions', href: '/exhibitions' },
-  { name: 'Gallery Walk', href: '/gallery-walk' },
   { name: 'About', href: '/about' },
   { name: 'Contact', href: '/contact' },
 ];

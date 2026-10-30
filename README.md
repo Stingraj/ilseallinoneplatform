@@ -2,7 +2,7 @@
 
 One app with two sides:
 
-- **Public website** (`/`): a gallery-style site whose works come straight from the artwork archive.
+- **Public website** (`/`): a 3D museum whose paintings come straight from the artwork archive, with the works, collections, exhibitions, about and contact pages behind it.
 - **Studio** (`/studio`): the artist's private dashboard in seven sections. Overview · Website · Artwork Archive · Email Studio · Collectors & Sales · Exhibitions · PDF & Tools.
 
 Built with Next.js 16, React 19, Tailwind CSS 3, shadcn/ui, Supabase (database, auth, storage) and n8n (email). Hosted on Vercel.
@@ -30,7 +30,7 @@ Without Supabase settings the public site renders empty states and the studio st
 | File | Contents |
 |---|---|
 | `docs/AUDIT.md` | Layer 1 audit of the original four projects |
-| `docs/GALLERY_WALK.md` | The 3D gallery: design, controls, performance, accessibility, recovery |
+| `docs/MUSEUM.md` | The 3D museum home page: how it is fed from the archive, limits, what to change |
 | `ARCHITECTURE.md` | System diagram, routes, security model |
 | `DESIGN_SYSTEM.md` | Gallery and studio design tokens and components |
 | `INTEGRATION_PLAN.md` | What came from where, every change to preserved code, n8n contract |
