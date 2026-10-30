@@ -20,8 +20,31 @@ import { loadSavedState, saveDraft, clearCampaignStorage } from './utils/storage
 // to the n8n webhook configured on the server (see src/app/api/studio/email/send/route.ts).
 const CAMPAIGN_RELAY_URL = '/api/studio/email/send';
 
-export function EmailStudioApp() {
-  const saved = useMemo(() => loadSavedState(), []);
+// `initialDraft` is a server draft (for example an exhibition invitation). When one is open, the browser's own
+// saved draft is left untouched so it can still be recovered later.
+/** @param {{ initialDraft?: { id: string, subject: string, previewText: string, templateType: string, templateData: object, rawHtml: string | null } | null }} props */
+export function EmailStudioApp({ initialDraft = null }) {
+  const browserDraft = useMemo(() => loadSavedState(), []);
+  const saved = useMemo(
+    () =>
+      initialDraft
+        ? {
+            ...browserDraft,
+            templateType: initialDraft.templateType || 'custom_announcement',
+            template1Data: { ...DEFAULT_TEMPLATE_1, ...(initialDraft.templateData || {}) },
+            customRawHtml: initialDraft.rawHtml || null,
+            subject: initialDraft.subject || '',
+            previewText: initialDraft.previewText || '',
+          }
+        : browserDraft,
+    [browserDraft, initialDraft]
+  );
+  const [draftId, setDraftId] = useState(initialDraft?.id ?? null);
+  const [draftStatus, setDraftStatus] = useState(initialDraft ? 'Opened from the studio' : '');
+  // Generated when the owner opens the final confirmation and reused for retries, so the server can refuse to
+  // send the same confirmation twice.
+  const [operationKey, setOperationKey] = useState(null);
+  const [collectorNote, setCollectorNote] = useState('');
 
   // 3-step navigation: 'contacts' | 'email' | 'send'
   const [activeStep, setActiveStep] = useState('contacts');
@@ -77,8 +100,9 @@ export function EmailStudioApp() {
     return 'draft';
   }, [sendStatus, validCount, subject]);
 
-  // Persist state changes
+  // Persist state changes (browser drafts only; a server draft is saved explicitly)
   useEffect(() => {
+    if (initialDraft) return;
     saveDraft({
       templateType,
       template1Data,
@@ -87,7 +111,54 @@ export function EmailStudioApp() {
       subject,
       previewText
     });
-  }, [templateType, template1Data, template2Data, customRawHtml, subject, previewText]);
+  }, [initialDraft, templateType, template1Data, template2Data, customRawHtml, subject, previewText]);
+
+  // Save the composition as a studio draft (creates one, or updates the open one).
+  const handleSaveServerDraft = async () => {
+    setDraftStatus('Saving…');
+    try {
+      const res = await fetch('/api/studio/email/drafts', {
+        method: draftId ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: draftId,
+          title: subject.trim() || 'Untitled campaign',
+          subject: subject.trim(),
+          previewText,
+          templateType,
+          templateData: templateType === 'simple_update' ? template2Data : template1Data,
+          rawHtml: customRawHtml,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.message || 'Could not save the draft');
+      setDraftId(json.id);
+      setDraftStatus('Saved to the studio');
+    } catch (err) {
+      setDraftStatus(err.message || 'Could not save the draft');
+    }
+  };
+
+  // Add Collectors who agreed to email (the server re-checks consent again when sending).
+  const handleAddConsentingCollectors = async () => {
+    setCollectorNote('Loading collectors…');
+    try {
+      const res = await fetch('/api/studio/email/recipients');
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.message || 'Collectors could not be loaded');
+      const existing = new Set(contacts.map((c) => c.email.toLowerCase()));
+      const added = json.recipients
+        .filter((r) => !existing.has(r.email.toLowerCase()))
+        .map((r) => ({ id: 'col_' + r.email, email: r.email, name: r.name || r.email.split('@')[0], isValid: true, error: null }));
+      setContacts((prev) => [...prev, ...added]);
+      setShowImporter(false);
+      setCollectorNote(
+        `${added.length} collector${added.length === 1 ? '' : 's'} added. Left out: ${json.excluded.withoutConsent} without email consent, ${json.excluded.unsubscribed} unsubscribed.`
+      );
+    } catch (err) {
+      setCollectorNote(err.message || 'Collectors could not be loaded');
+    }
+  };
 
 
   // Reset to visual editor (discard custom raw HTML)
@@ -128,7 +199,9 @@ export function EmailStudioApp() {
         name: c.name || c.email.split('@')[0] || ''
       })),
       subject: subject.trim(),
-      body: compiledHtml
+      body: compiledHtml,
+      operationKey,
+      ...(draftId ? { draftId } : {}),
     };
 
     try {
@@ -182,6 +255,16 @@ export function EmailStudioApp() {
         onClearCampaign={handleClearCampaign}
       />
 
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 bg-white px-4 py-2 text-xs sm:px-6">
+        <span className="text-slate-500" aria-live="polite">
+          {draftId ? 'Studio draft' : 'Browser draft (kept on this device)'}
+          {draftStatus ? ` · ${draftStatus}` : ''}
+        </span>
+        <button type="button" onClick={handleSaveServerDraft} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:border-slate-400">
+          {draftId ? 'Save changes to draft' : 'Save as studio draft'}
+        </button>
+      </div>
+
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
 
@@ -209,6 +292,19 @@ export function EmailStudioApp() {
             {/* STEP 1: CONTACTS */}
             {activeStep === 'contacts' && (
               <div className="space-y-6">
+                <div className="flex flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-slate-600">
+                    Only Collectors who agreed to receive email can be sent a campaign; everyone else is removed when you send.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAddConsentingCollectors}
+                    className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                  >
+                    Add collectors with consent
+                  </button>
+                </div>
+                {collectorNote && <p role="status" className="text-xs text-slate-500">{collectorNote}</p>}
                 {contacts.length === 0 && !showImporter ? (
                   <EmptyState onAddContacts={() => setShowImporter(true)} />
                 ) : (
@@ -345,7 +441,10 @@ export function EmailStudioApp() {
                 setCampaignName={setCampaignName}
                 templateType={templateType}
                 webhookUrl={webhookUrl}
-                onInitiateSend={() => setIsConfirmModalOpen(true)}
+                onInitiateSend={() => {
+                  setOperationKey(crypto.randomUUID());
+                  setIsConfirmModalOpen(true);
+                }}
               />
             )}
           </>

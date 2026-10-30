@@ -1,27 +1,37 @@
+import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 
+/** One figure from real data. `href` links to the list the number counts; a dash means "not available". */
 export function MetricCard({
   label,
   value,
   hint,
   icon: Icon,
-  accent,
+  href,
 }: {
   label: string;
   value: string;
   hint?: string;
   icon: LucideIcon;
-  accent: string;
+  accent?: string;
+  href?: string;
 }) {
-  return (
-    <div className="studio-card relative overflow-hidden p-5">
-      <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-25" style={{ backgroundColor: accent }} aria-hidden />
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-900" style={{ backgroundColor: accent }}>
-        <Icon className="h-4 w-4" aria-hidden />
+  const body = (
+    <>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[color:var(--studio-accent)] ring-1 ring-[color:var(--studio-line)]">
+        <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
       </span>
-      <p className="relative mt-4 font-studio text-3xl font-bold tracking-tight text-slate-900">{value}</p>
-      <p className="relative mt-1 text-sm font-medium text-slate-600">{label}</p>
-      {hint && <p className="relative mt-1 text-xs text-slate-400">{hint}</p>}
-    </div>
+      <span className="min-w-0">
+        <span className="block text-[13px] text-[color:var(--studio-muted)]">{label}</span>
+        <span className="block text-2xl font-semibold tabular-nums tracking-tight text-[color:var(--studio-ink)]">{value}</span>
+        {hint && <span className="block truncate text-xs text-[color:var(--studio-muted)]">{hint}</span>}
+      </span>
+    </>
+  );
+  const className = 'studio-card flex items-center gap-3 p-4 transition-colors';
+  return href ? (
+    <Link href={href} className={`${className} hover:bg-white`}>{body}</Link>
+  ) : (
+    <div className={className}>{body}</div>
   );
 }

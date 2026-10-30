@@ -1,0 +1,13 @@
+Work inside this existing Ilse Artist Studio repository. Read the repository's AGENTS.md and CLAUDE.md if present, then ilse-build-pack/CLAUDE.md, ilse-build-pack/AGENTS.md, and ilse-build-pack/docs/ilse/00-EVIDENCE.md. Follow the installed Next.js documentation required by the existing AGENTS.md.
+
+Execute the complete build described by this pack in one continuous, checkpointed session. Audit the actual checkout first; the pack reviewed commit 6b7dd42465954834ada7c0fb8b37726d4c229510 and must not overwrite newer work. Preserve every working feature, current data, owner authentication, n8n/Gmail contract, PDF tools and original public portfolio design. Do not build a second archive, CRM, email editor, exhibition manager, PDF engine, dashboard or 3D gallery.
+
+Use docs/ilse/01-ARCHITECTURE.md and 04-EXECUTION.md for the dependency order; read 02-DESIGN.md once before the shell changes. Read only the page specification and contract section needed for the current task. The new supplied visual references override the old Donezo/green/no-glass admin styling. Use the warm desktop reference as primary, the blue table reference for data tables, and the mobile reference for responsive panels. Scope all new styles to the studio.
+
+For each task: locate existing implementation, record reuse/gap evidence, make the smallest complete change, test affected behavior, and update docs/ilse/state/STATUS.md and TASKS.md. These state paths are inside ilse-build-pack/. Continue automatically through safe local work. Keep terminal output targeted and summaries concise. Use the role files sequentially by default; separate agents are optional only if the environment and user permit them, and shared files have one owner.
+
+Complete missing connections and functionality, including exhibition ordering/catalogue/invitation drafts, server-side campaign consent and suppression enforcement, durable duplicate-send protection, unsubscribe, reports and settings where absent. Preserve the existing n8n request shape. Do not claim email delivery based only on webhook acceptance. Missing infrastructure must produce a clear setup/error state and a recorded blocker, never invented data.
+
+Do not send live email, apply production migrations, alter credentials/DNS, replace a production system, merge, or deploy as part of this run. Prepare concrete diffs and verification for those final actions. Do not ask for permission for routine local edits, safe tests, or reversible implementation choices.
+
+Finish with a concise report of reused modules, changed files, completed workflows, actual test results, remaining blockers, and the exact production actions awaiting approval. Start by inspecting, then implement; do not stop after producing another plan.

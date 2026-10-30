@@ -81,3 +81,15 @@ Bugs found and fixed during testing: paintings stayed blank because their materi
 7. **Very large archives** make a long building (about 20 m per room plus 6 m passages); the Rooms menu and a bounded walking time (≤ 10 s per trip) keep it usable, but a map/overview would help beyond ~10 rooms.
 8. **Screen readers**: the announcements and text index were verified in the accessibility tree, not with VoiceOver/NVDA.
 9. three.js logs a deprecation notice (`THREE.Clock`) from react-three-fiber in development; harmless.
+
+## Build pack run (2026-10-30, branch `build/ilse-studio-pack`)
+
+| Check | Result |
+|---|---|
+| `npx tsc --noEmit` | Pass |
+| `npm run lint` | 0 errors (83 warnings, all in preserved code) |
+| `npm test` | 42 / 42 pass (7 new: consent and suppression, test allowlist, unsubscribe tokens and footer, invitation drafts, CSV formula neutralising) |
+| `scripts/test-migrations.sh` incl. `20_workflow_checks.sql` | All pass, plus rollback and re-apply |
+| `npx next build` | Pass (after moving a stale `.next/cache` aside) |
+| Prod server smoke, no Supabase | Public pages 200; all studio routes redirect to `/login`; `/unsubscribe` GET is read-only, POST without a database shows a neutral error |
+| Studio screens in a browser | **Not run**: needs a Supabase owner session (staging) |
