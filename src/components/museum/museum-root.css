@@ -1,0 +1,101 @@
+/*
+ * Arvista's page-level rules, scoped to the museum so the rest of the website (and the studio) is unaffected.
+ * The palette and focus ring are defined on .museum-root rather than :root for the same reason.
+ */
+.museum-root {
+  --color-night: #110c08;
+  --color-ivory: #f4f0e8;
+  --color-warm-white: #faf7f0;
+  --color-limestone: #d8ccba;
+  --color-walnut: #30231d;
+  --color-charcoal: #292723;
+  --color-brass: #a88752;
+  --color-gold: #c4a46e;
+  --color-focus: #d4b682;
+  --color-muted: #7a6e60;
+
+  min-height: 100vh;
+  background: var(--color-night);
+  color: var(--color-ivory);
+  overflow-x: clip;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Keep the overscroll and iOS bounce areas dark while the museum is on screen. */
+html:has(.museum-root) {
+  background: #110c08;
+}
+
+.museum-root *,
+.museum-root *::before,
+.museum-root *::after {
+  box-sizing: border-box;
+}
+
+/* Tailwind's reset zeroes these; the museum's own styles expect normal flow text. */
+.museum-root a {
+  color: inherit;
+}
+
+.museum-root :focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--color-night);
+}
+
+.museum-root .skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--color-ivory);
+  color: #1a120b;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.museum-root .skip-link:focus {
+  transform: none;
+}
+
+.museum-boot {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  color: var(--color-gold);
+  font-family: var(--font-display), serif;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.museum-empty {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.museum-empty h1 {
+  margin: 0;
+  font-family: var(--font-serif), serif;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+}
+
+.museum-empty p {
+  margin: 0;
+  color: var(--color-limestone);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

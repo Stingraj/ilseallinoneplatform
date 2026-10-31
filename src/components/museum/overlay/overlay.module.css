@@ -1,0 +1,879 @@
+/* ---------- Scroll track and sticky stage ---------- */
+
+.track {
+  position: relative;
+  /* height is set inline from the timeline length */
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-night);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, transparent 58%, rgb(8 6 4 / 0.5) 100%);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A small brass diamond, used in rules and dividers throughout */
+.diamond {
+  display: inline-block;
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--color-brass);
+  transform: rotate(45deg);
+}
+
+/* ---------- Entrance ---------- */
+
+.hero {
+  /* The carved inscription in the 3D entrance carries the branding; only quiet text sits over it. */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.1rem;
+  padding: 0 1.5rem clamp(1.5rem, 5vh, 3rem);
+  pointer-events: none;
+  text-align: center;
+  color: var(--color-ivory);
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 7vw, 5.4rem);
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #efdcb8;
+  /* optical centring: letter-spacing adds trailing space */
+  padding-left: 0.16em;
+}
+
+.heroSubtitle {
+  display: block;
+  margin-top: 0.85rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.72rem, 1.4vw, 0.95rem);
+  letter-spacing: 0.42em;
+  color: #e3cfa9;
+  padding-left: 0.42em;
+}
+
+.heroRule {
+  display: block;
+  width: 3.5rem;
+  height: 1px;
+  margin: 1.6rem 0 1.2rem;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.heroAttribution {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.68rem, 1.1vw, 0.8rem);
+  letter-spacing: 0.3em;
+  padding-left: 0.3em;
+  text-transform: uppercase;
+  color: #e6d3ad;
+  text-shadow: 0 1px 12px rgb(8 5 3 / 0.9);
+}
+
+/* The page heading is visually hidden (the carved inscription carries the name). When keyboard navigation
+   focuses it, the ring is drawn on the attribution line, which shows the same words. */
+.hero > h1:focus-visible ~ .heroAttribution {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 6px;
+  box-shadow: 0 0 0 6px var(--color-night);
+}
+
+.heroTagline {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  color: #efe5d3;
+  text-shadow: 0 1px 14px rgb(8 5 3 / 0.85);
+}
+
+.scrollCue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+}
+
+.scrollCueText {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #e9dcc6;
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.8);
+}
+
+.scrollCueMouse {
+  position: relative;
+  width: 22px;
+  height: 34px;
+  border: 1.5px solid rgb(240 226 200 / 0.8);
+  border-radius: 12px;
+}
+
+.scrollCueDot {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--color-gold);
+  animation: scrollCue 2.2s ease-in-out infinite;
+}
+
+@keyframes scrollCue {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(11px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+/* ---------- Painting label (ivory exhibition card) ---------- */
+
+.panel {
+  /* Centred with auto margins so `transform` stays free for the GSAP fade */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: clamp(5.5rem, 8vw, 8rem);
+  width: min(26.5rem, 33vw);
+  height: max-content;
+  max-height: 84vh;
+  margin-block: auto;
+  overflow-y: auto;
+  padding: 2.15rem 2.4rem 1.9rem;
+  /* Heavy ivory card stock, faintly warmer toward the foot, with a fine inset brass rule like a gilt fillet. */
+  background: linear-gradient(180deg, #fbf8f1 0%, #f5f0e6 100%);
+  color: var(--color-charcoal);
+  outline: 1px solid rgb(168 135 82 / 0.38);
+  outline-offset: -9px;
+  box-shadow:
+    0 26px 60px rgb(10 6 3 / 0.4),
+    0 2px 6px rgb(10 6 3 / 0.18);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.panelIndex {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0 0 1.3rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--color-muted);
+}
+
+.panelRule {
+  flex: 1;
+  height: 1px;
+  background: rgb(168 135 82 / 0.45);
+}
+
+.panelBadge {
+  display: inline-block;
+  margin: 0 0 1rem;
+  padding: 0.3rem 0.55rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: #1a120b;
+  background: #e8cf9e;
+}
+
+.panelTitle {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 2.6vw, 2.55rem);
+  line-height: 1.1;
+  letter-spacing: 0.005em;
+  color: #1f1c18;
+  text-wrap: balance;
+}
+
+.panelLead {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.06rem;
+  line-height: 1.55;
+  color: #5c5247;
+}
+
+.panelBody {
+  margin: 0;
+  max-width: 34em;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.68;
+  color: #403a33;
+  /* The artist's line breaks are part of the text */
+  white-space: pre-line;
+}
+
+.panelDivider {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.35rem 0 1.1rem;
+}
+
+.panelDivider::before,
+.panelDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgb(168 135 82 / 0.4);
+}
+
+.panelFacts {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1.6rem;
+  font-family: var(--font-sans);
+}
+
+.panelFact {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.panelFact dt {
+  font-size: 0.63rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.panelFact dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #2a2622;
+}
+
+.panelActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.panelBack,
+.panelNext {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.panelBack {
+  padding: 0 0.2rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+}
+
+.panelBack:hover {
+  color: var(--color-charcoal);
+}
+
+.panelNext {
+  padding: 0 1.3rem;
+  border: 1px solid var(--color-charcoal);
+  background: var(--color-charcoal);
+  color: var(--color-warm-white);
+}
+
+.panelNext:hover {
+  background: var(--color-walnut);
+  border-color: var(--color-walnut);
+}
+
+/* ---------- Closing card ---------- */
+
+.finale {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1rem, 4vh, 2.5rem);
+  width: min(27rem, calc(100% - 2rem));
+  translate: -50% 0;
+  padding: 1.3rem 1.9rem 1.1rem;
+  background: var(--color-warm-white);
+  color: var(--color-charcoal);
+  text-align: center;
+  box-shadow: 0 18px 40px rgb(10 6 3 / 0.35);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.finaleEyebrow {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-brass);
+}
+
+.finaleName {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  color: #1f1c18;
+}
+
+.finaleStatement {
+  margin: 0 auto 0.9rem;
+  max-width: 24rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #5c5247;
+}
+
+.finaleActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1.4rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- Chapter navigation ---------- */
+
+.chapters {
+  position: absolute;
+  top: 50%;
+  right: clamp(1rem, 2.2vw, 2rem);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.chapterTrack {
+  position: absolute;
+  top: 0.9rem;
+  bottom: 0.9rem;
+  right: 0.95rem;
+  width: 1px;
+  background: rgb(244 236 223 / 0.18);
+}
+
+.chapterProgress {
+  position: absolute;
+  inset: 0;
+  background: var(--color-gold);
+  transform-origin: top;
+  transform: scaleY(0);
+}
+
+.chapterList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* The button is just the dot and its padding: the label is drawn outside it (see .chapterLabel), so the
+   clickable area never reaches over the painting label beside the dots. */
+.chapterButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  min-height: 1.8rem;
+  padding: 0 0.6rem 0 0.4rem;
+  border: 0;
+  background: transparent;
+  color: rgb(244 236 223 / 0.62);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* Out of the button's layout and hit area; placed where it sat before, 0.75rem left of the dot. */
+.chapterLabel {
+  position: absolute;
+  top: 50%;
+  right: calc(100% - 0.4rem + 0.75rem);
+  translate: 0 -50%;
+  pointer-events: none;
+  padding: 0.25rem 0.5rem;
+  background: rgb(17 12 8 / 0.88);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.25s, transform 0.25s;
+  white-space: nowrap;
+}
+
+.chapterDot {
+  position: relative;
+  z-index: 1;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  border: 1px solid rgb(244 236 223 / 0.7);
+  background: var(--color-night);
+  transition: background-color 0.25s, transform 0.25s;
+}
+
+.chapterButton[aria-current="step"] {
+  color: var(--color-ivory);
+}
+
+.chapterButton[aria-current="step"] .chapterDot {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  transform: scale(1.3);
+}
+
+/* Labels appear on hover/focus only, so they never cover the painting label. */
+.chapterButton:hover .chapterLabel,
+.chapterButton:focus-visible .chapterLabel {
+  opacity: 1;
+  transform: none;
+}
+
+.collectionLink {
+  position: absolute;
+  top: max(clamp(0.75rem, 2.2vh, 1.4rem), env(safe-area-inset-top));
+  right: clamp(0.75rem, 2.2vw, 2rem);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border: 1px solid rgb(196 164 110 / 0.55);
+  /* A quiet backing keeps the link legible over the bright ivory walls */
+  background: rgb(16 12 8 / 0.5);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(244 236 223 / 0.85);
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.collectionLink:hover {
+  background: rgb(16 12 8 / 0.75);
+  color: var(--color-ivory);
+}
+
+/* ---------- Loading screen ---------- */
+
+.loader {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  padding: 1.5rem;
+  background: var(--color-night);
+  color: var(--color-ivory);
+  text-align: center;
+  transition: opacity 0.9s ease, visibility 0s linear 0.9s;
+}
+
+.loader[data-visible="false"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loaderBrand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.4em;
+  padding-left: 0.4em;
+  text-transform: uppercase;
+  color: #ead6b1;
+}
+
+.loaderBar {
+  position: relative;
+  width: 9rem;
+  height: 1px;
+  overflow: hidden;
+  background: rgb(201 164 106 / 0.2);
+}
+
+.loaderBar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: var(--color-gold);
+  animation: loaderSweep 1.6s ease-in-out infinite;
+}
+
+@keyframes loaderSweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+.loaderText {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #cfc2ad;
+}
+
+.loaderSlow {
+  max-width: 24rem;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #cfc2ad;
+}
+
+.loaderSlow a {
+  color: #ead6b1;
+}
+
+/* ---------- Static (no WebGL) entrance ---------- */
+
+.staticEntrance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  min-height: 85vh;
+  padding: 4rem 1.5rem;
+  text-align: center;
+  color: var(--color-ivory);
+  background:
+    radial-gradient(ellipse at 50% 30%, rgb(120 82 44 / 0.3), transparent 60%),
+    var(--color-night);
+}
+
+.staticEntrance .heroRule {
+  margin: 0.6rem 0 0.4rem;
+}
+
+.staticNotice {
+  max-width: 30rem;
+  margin: 1.2rem 0 0.8rem;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #cfc2ad;
+}
+
+.staticEntrance .panelNext {
+  border-color: var(--color-gold);
+  background: transparent;
+}
+
+/* ---------- Narrow and portrait screens ---------- */
+
+@media (max-aspect-ratio: 17/20), (max-width: 640px) {
+  /* Bottom sheet below the painting; the camera frames the painting in the space above it */
+  .panel {
+    top: auto;
+    right: 0.75rem;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    left: 0.75rem;
+    width: auto;
+    max-height: 43dvh;
+    margin-block: 0;
+    padding: 1.05rem 1.25rem 0.85rem;
+    outline-offset: -6px;
+  }
+
+  .panelIndex {
+    margin-bottom: 0.6rem;
+  }
+
+  .panelTitle {
+    margin-bottom: 0.45rem;
+    font-size: 1.5rem;
+  }
+
+  .panelLead {
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .panelBody {
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .panelDivider {
+    margin: 0.7rem 0 0.6rem;
+  }
+
+  .panelFacts {
+    gap: 0.3rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .panelFact {
+    grid-template-columns: 5.6rem 1fr;
+  }
+
+  .panelFact dd {
+    font-size: 0.82rem;
+  }
+
+  .finale {
+    padding: 1.3rem 1.3rem 1.1rem;
+  }
+
+  /* Top right, below the collection link and clear of the centred painting */
+  .chapters {
+    top: calc(max(0.75rem, env(safe-area-inset-top)) + 52px);
+    right: 0.25rem;
+    transform: none;
+  }
+
+  .chapterList {
+    gap: 0.5rem;
+  }
+
+  .chapterLabel {
+    display: none;
+  }
+
+  .chapterTrack {
+    right: 0.82rem;
+  }
+
+  .collectionLink {
+    font-size: 0.64rem;
+  }
+
+  .heroAttribution {
+    max-width: 22rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    padding-left: 0.2em;
+    line-height: 1.7;
+    text-wrap: balance;
+  }
+}
+
+/* Short landscape screens (phones turned sideways). The camera keeps its landscape framing, which places the
+   painting just left of centre: its frame ends about 10% of the screen height right of centre. The label sits
+   in the space between the frame and the chapter dots, below the collection link, in a compact setting. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .panel {
+    --panel-top: calc(max(clamp(0.75rem, 2.2vh, 1.4rem), env(safe-area-inset-top)) + 44px + 0.5rem);
+    --panel-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    top: var(--panel-top);
+    bottom: var(--panel-bottom);
+    left: calc(50% + 10dvh + 0.5rem);
+    right: calc(max(clamp(1rem, 2.2vw, 2rem), env(safe-area-inset-right)) + 44px + 0.75rem);
+    width: auto;
+    max-height: calc(100% - var(--panel-top) - var(--panel-bottom));
+    margin-block: auto;
+    padding: 0.7rem 0.9rem 0;
+    outline-offset: -5px;
+    /* Its width comes from the screen, not its content, so the controls can respond to it (see below). */
+    container-type: inline-size;
+  }
+
+  .panelIndex {
+    margin-bottom: 0.3rem;
+    font-size: 0.64rem;
+  }
+
+  .panelTitle {
+    margin-bottom: 0.3rem;
+    font-size: 1.25rem;
+  }
+
+  .panelLead {
+    margin-bottom: 0.3rem;
+    font-size: 0.88rem;
+    line-height: 1.32;
+  }
+
+  .panelBody {
+    font-size: 0.8rem;
+    line-height: 1.42;
+  }
+
+  .panelDivider {
+    margin: 0.4rem 0 0.35rem;
+  }
+
+  .panelFacts {
+    gap: 0.2rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .panelFact {
+    grid-template-columns: 5.6rem 1fr;
+    gap: 0.4rem;
+  }
+
+  .panelFact dt {
+    letter-spacing: 0.14em;
+  }
+
+  .panelFact dd {
+    font-size: 0.8rem;
+  }
+
+  .chapters {
+    right: max(clamp(1rem, 2.2vw, 2rem), env(safe-area-inset-right));
+  }
+}
+
+/* Where the label can be taller than the space for it (very narrow phones, short landscape screens), its
+   controls stay pinned to the foot of the card and the text scrolls above them, so Previous and Next never
+   need scrolling to. A compact setting keeps both controls on one line. */
+@media (max-width: 360px), (orientation: landscape) and (max-height: 500px) {
+  .panel {
+    padding-bottom: 0;
+  }
+
+  .panelActions {
+    position: sticky;
+    bottom: 0;
+    flex-wrap: nowrap;
+    margin-inline: -0.9rem;
+    padding: 0.55rem 0.9rem 0.7rem;
+    background: linear-gradient(180deg, rgb(245 240 230 / 0), #f5f0e6 0.55rem);
+  }
+
+  .panelBack,
+  .panelNext {
+    gap: 0.45rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+
+  .panelNext {
+    padding: 0 0.85rem;
+  }
+}
+
+/* Phones narrower than about 810 px when turned sideways leave the card too narrow for both controls on one
+   line (they need about 16.3rem): Next moves to a full-width line of its own instead of being cut off.
+   Scoped to the screens whose card is a container: an unscoped @container rule made Chrome's first layout of the
+   page take about 0.3 s longer on every screen, though no other screen has a container. */
+@media (orientation: landscape) and (max-height: 500px) {
+  @container (max-width: 16rem) {
+    .panelActions {
+      flex-wrap: wrap;
+      row-gap: 0.35rem;
+    }
+
+    .panelNext {
+      flex: 1 0 100%;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .panelActions {
+    margin-inline: -1.25rem;
+    padding-inline: 1.25rem;
+  }
+
+  /* The closing card is tall enough here to reach the column of chapter dots: keep it clear of their 44 px.
+     Shifted with a margin, not `translate`: GSAP takes over the card's transforms when it animates it. */
+  .finale {
+    width: calc(100% - 2rem - 44px);
+    margin-left: -22px;
+  }
+}
+
+/* Touch screens: every control at least 44 px tall */
+@media (pointer: coarse) {
+  .chapterList {
+    gap: 0;
+  }
+
+  .chapterButton {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollCueDot,
+  .loaderBar::after {
+    animation: none;
+  }
+
+  .loader,
+  .chapterLabel,
+  .panelBack,
+  .panelNext,
+  .collectionLink {
+    transition: none;
+  }
+}

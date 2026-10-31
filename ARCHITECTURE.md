@@ -25,7 +25,7 @@ Browser ──► src/proxy.ts ── refreshes the Supabase session; /studio on
 ## Why this shape
 
 - The archive (Next 14 / React 18) and Email Studio (Vite / React 18) move into one Next 16 app. Archive files were copied with only route paths and the owner check changed; the Email Studio components are unchanged apart from the send URL. Tailwind 3 and the archive's shadcn/ui tokens are kept, so the moved screens render as before.
-- ARVISTA was not copied: its repository has no licence. It informed the gallery feel only.
+- The home page is the ARVISTA 3D museum (`src/components/museum`, `src/lib/museum`), used with the owner's confirmation that it is theirs to reuse. Its code is kept as it was apart from the data source: the painting list comes from the archive instead of a content file, and all names, text and artwork are Ilse's. See `docs/MUSEUM.md`.
 - The old deployments (`elsapfs-main`, `elsa-1780082186337`, Email Studio) keep running until sign-off and are the rollback.
 
 ## Service boundaries (blueprint names → code)
@@ -50,6 +50,6 @@ Browser ──► src/proxy.ts ── refreshes the Supabase session; /studio on
 
 ## Route map
 
-Public: `/`, `/gallery-walk` (3D museum; see docs/GALLERY_WALK.md), `/artworks`, `/artworks/[slug]`, `/collections`, `/collections/[slug]`, `/about`, `/exhibitions`, `/exhibitions/[slug]`, `/contact`, `/viewing/[token]` (noindex), `/sitemap.xml`, `/robots.txt`.
+Public: `/` (3D museum built from the archive; see docs/MUSEUM.md; `/gallery-walk` redirects here), `/artworks`, `/artworks/[slug]`, `/collections`, `/collections/[slug]`, `/about`, `/exhibitions`, `/exhibitions/[slug]`, `/contact`, `/viewing/[token]` (noindex), `/sitemap.xml`, `/robots.txt`.
 
 Studio: `/studio` (Overview), `/studio/website`, `/studio/website/profile`, `/studio/archive`, `/studio/archive/new`, `/studio/archive/[id]`, `/studio/archive/catalog`, `/studio/email`, `/studio/collectors`, `/studio/collectors/[id]`, `/studio/enquiries`, `/studio/sales`, `/studio/invoices`, `/studio/exhibitions`, `/studio/exhibitions/[id|new]`, `/studio/viewing-rooms`, `/studio/tools`. Old `/dashboard/*` URLs redirect (308).

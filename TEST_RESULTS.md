@@ -93,3 +93,16 @@ Bugs found and fixed during testing: paintings stayed blank because their materi
 | `npx next build` | Pass (after moving a stale `.next/cache` aside) |
 | Prod server smoke, no Supabase | Public pages 200; all studio routes redirect to `/login`; `/unsubscribe` GET is read-only, POST without a database shows a neutral error |
 | Studio screens in a browser | **Not run**: needs a Supabase owner session (staging) |
+
+## ARVISTA museum as the home page (2026-10-31)
+
+| Gate | Result |
+|---|---|
+| `tsc --noEmit` | Pass |
+| `npm run lint` | 0 errors, 83 warnings (all in preserved code) |
+| `npm test` | 30/30 pass (the previous 3D-gallery tests were removed with that code; 5 new tests cover archive → painting mapping, caps, unreadable sizes, and the museum layout) |
+| `next build` | Pass; `/` is the museum, `/gallery-walk` redirects (308) |
+| Browser, local Supabase, 1440 and 375 | Entrance with the gallery name on the tablet, doors open, corridor, paintings hang with portrait/landscape proportions from three **synthetic gradient test images** uploaded to the local database only; 2D collection lists the archive facts and detail links; phone entrance renders |
+| Other pages | `/contact`, `/artworks`, `/artworks/<slug>`, `/collections`, `/exhibitions`, `/about`, `/unsubscribe`, `/login` 200; `/studio` redirects to login |
+
+Not verified: Ilse's real artworks and photographs (no access to her Supabase), walking the full corridor past the third painting, many works (more than 3), a slow or low-end device, the 768 width.

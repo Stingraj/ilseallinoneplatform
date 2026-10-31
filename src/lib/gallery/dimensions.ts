@@ -15,6 +15,9 @@ const MAX_CM = 260;
 const NUMBER = String.raw`(\d+(?:[.,]\d+)?)`;
 const PAIR = new RegExp(`${NUMBER}\\s*(?:x|×|by)\\s*${NUMBER}(?:\\s*(?:x|×|by)\\s*${NUMBER})?\\s*(cm|centimet(?:er|re)s?|mm|in(?:ch(?:es)?)?\\b|")?`, 'gi');
 
+/** "18 inches diameter": a round work, as wide as it is tall. */
+const DIAMETER = new RegExp(`${NUMBER}\\s*(cm|centimet(?:er|re)s?|mm|in(?:ch(?:es)?)?\\b|")?\\s*(?:in\\s+)?diameter`, 'i');
+
 const toNumber = (value: string) => Number(value.replace(',', '.'));
 
 function toCm(value: number, unit: string | undefined): number {
@@ -37,7 +40,14 @@ export function parseDimensions(text: string | null | undefined): PhysicalSize {
     b: toNumber(m[2]),
     unit: m[4]?.toLowerCase(),
   }));
-  if (matches.length === 0) return fallback;
+  if (matches.length === 0) {
+    const round = text.match(DIAMETER);
+    if (!round) return fallback;
+    const d = toCm(toNumber(round[1]), round[2]?.toLowerCase());
+    if (!Number.isFinite(d) || d <= 0) return fallback;
+    const side = Math.min(MAX_CM, Math.max(MIN_CM, d));
+    return { longCm: side, shortCm: side, known: true };
+  }
 
   const metric = matches.find((m) => m.unit && /^(cm|centimet|mm)/.test(m.unit));
   const chosen = metric ?? matches[0];

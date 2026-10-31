@@ -50,3 +50,10 @@ Not verified: real sends, Ilse's real archive data and imagery, the 768 tablet w
 3. Set env vars on Vercel: `EMAIL_TEST_RECIPIENTS`, later `N8N_SUPPORTS_UNSUBSCRIBE_URL=1` (only after step 4).
 4. Update the n8n campaign workflow to use `unsubscribeUrl` (request shape otherwise unchanged).
 5. Review and merge PR #1 into `integration/artist-studio`, deploy a preview, then production.
+
+## ARVISTA museum as the home page (2026-10-31, branch `build/arvista-site`)
+
+Requested by the owner, who confirmed Arvista is theirs to reuse. `/` is now the ARVISTA 3D museum filled from the archive's public artworks (first 40, featured first); the old home page and `/gallery-walk` are gone (`/gallery-walk` redirects to `/`). Contact/enquiry, artwork, collection, exhibition, about, unsubscribe, viewing rooms and the whole studio are unchanged. See `docs/MUSEUM.md` and `TEST_RESULTS.md`.
+
+Gates: tsc pass; lint 0 errors; 30/30 tests; `next build` pass; browser-checked on local Supabase at 1440 and 375 with three synthetic test images (local database only).
+Not done: Ilse's real artworks are not in this repo or in any database I can reach, so the museum shows whatever the connected Supabase archive publishes; with the real project connected, check the first load and the order of works.
