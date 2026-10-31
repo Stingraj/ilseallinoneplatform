@@ -3,6 +3,9 @@ const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.
 /** Widths the Next.js image optimiser accepts by default. */
 const WIDTHS = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
 
+/** The only quality the optimiser accepts unless `images.qualities` is configured; any other value is a 400 on Vercel. */
+const QUALITY = 75;
+
 export function snapWidth(width: number): number {
   return WIDTHS.find((w) => w >= width) ?? WIDTHS[WIDTHS.length - 1];
 }
@@ -24,5 +27,5 @@ export function isArchiveImage(src: string): boolean {
 export function textureUrl(src: string, width: number): string | null {
   if (src.startsWith('/dev-fixtures/')) return src;
   if (!isArchiveImage(src)) return null;
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${snapWidth(width)}&q=80`;
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${snapWidth(width)}&q=${QUALITY}`;
 }
