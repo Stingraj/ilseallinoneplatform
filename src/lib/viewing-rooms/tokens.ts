@@ -25,6 +25,11 @@ export function passcodeProof(roomId: string, secret: string): string {
   return createHmac('sha256', secret).update(`viewing-room:${roomId}`).digest('base64url');
 }
 
+/** Same proof for other passcode-protected links (e.g. file shares), bound to a purpose so proofs never cross over. */
+export function scopedProof(scope: 'file-share', id: string, secret: string): string {
+  return createHmac('sha256', secret).update(`${scope}:${id}`).digest('base64url');
+}
+
 export type RoomState = 'open' | 'expired' | 'revoked' | 'inactive';
 
 export function roomState(room: { is_active: boolean | null; revoked_at: string | null; expires_at: string | null }, now = new Date()): RoomState {

@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
       // Private areas are never indexed.
       { source: '/studio/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       { source: '/viewing/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      { source: '/share/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      { source: '/verify/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
     ];
   },
 };

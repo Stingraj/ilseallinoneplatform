@@ -14,10 +14,11 @@ export interface ContactOption { id: string; name: string }
 
 const selectClass = 'h-10 w-full rounded-md border border-input bg-background px-3 text-sm';
 
-export function NewInvoiceForm({ sales, contacts }: { sales: SaleOption[]; contacts: ContactOption[] }) {
+export function NewInvoiceForm({ sales, contacts, quotesEnabled }: { sales: SaleOption[]; contacts: ContactOption[]; quotesEnabled: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [saleId, setSaleId] = useState(sales[0]?.id ?? '');
+  const [kind, setKind] = useState<'invoice' | 'quote'>('invoice');
   const sale = sales.find((s) => s.id === saleId);
 
   if (sales.length === 0) {
@@ -29,13 +30,27 @@ export function NewInvoiceForm({ sales, contacts }: { sales: SaleOption[]; conta
       action={(formData) =>
         startTransition(async () => {
           const result = await createInvoiceFromSaleAction(formData);
-          if (!result.success) return void toast.error(result.error ?? 'Could not create the invoice');
-          toast.success('Invoice created');
+          if (!result.success) return void toast.error(result.error ?? `Could not create the ${kind}`);
+          toast.success(kind === 'quote' ? 'Quote created' : 'Invoice created');
           router.refresh();
         })
       }
       className="grid gap-4 sm:grid-cols-2"
     >
+      <input type="hidden" name="kind" value={kind} />
+      {quotesEnabled && (
+        <fieldset className="sm:col-span-2">
+          <legend className="mb-1.5 text-sm font-medium">Document</legend>
+          <div className="inline-flex rounded-full border border-slate-200 p-1 text-sm">
+            {(['invoice', 'quote'] as const).map((k) => (
+              <label key={k} className={`cursor-pointer rounded-full px-4 py-1.5 ${kind === k ? 'bg-slate-900 text-white' : ''}`}>
+                <input type="radio" name="kind-choice" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
+                {k === 'invoice' ? 'Invoice' : 'Quote'}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
       <div className="space-y-1.5 sm:col-span-2">
         <Label htmlFor="inv-sale">Sale</Label>
         <select id="inv-sale" name="sale_id" value={saleId} onChange={(e) => setSaleId(e.target.value)} className={selectClass}>
@@ -57,17 +72,24 @@ export function NewInvoiceForm({ sales, contacts }: { sales: SaleOption[]; conta
         <Label htmlFor="inv-tax-rate">Tax rate %</Label>
         <Input id="inv-tax-rate" name="tax_rate" type="number" min={0} max={100} step="0.01" defaultValue={0} />
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="inv-due">Due date</Label>
-        <Input id="inv-due" name="due_date" type="date" />
-      </div>
+      {kind === 'invoice' ? (
+        <div className="space-y-1.5">
+          <Label htmlFor="inv-due">Due date</Label>
+          <Input id="inv-due" name="due_date" type="date" />
+        </div>
+      ) : (
+        <div className="space-y-1.5">
+          <Label htmlFor="inv-valid">Quote valid until</Label>
+          <Input id="inv-valid" name="valid_until" type="date" />
+        </div>
+      )}
       <div className="space-y-1.5 sm:col-span-2">
         <Label htmlFor="inv-notes">Notes (payment details, terms)</Label>
         <Textarea id="inv-notes" name="notes" rows={3} />
       </div>
       <p className="text-xs text-slate-500 sm:col-span-2">Tax is never added automatically. Check the rules for your country and the buyer&apos;s before entering a rate.</p>
       <div className="sm:col-span-2">
-        <Button type="submit" disabled={pending} className="bg-slate-900 text-white">{pending ? 'Creating…' : 'Create invoice'}</Button>
+        <Button type="submit" disabled={pending} className="bg-slate-900 text-white">{pending ? 'Creating…' : kind === 'quote' ? 'Create quote' : 'Create invoice'}</Button>
       </div>
     </form>
   );

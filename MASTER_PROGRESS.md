@@ -45,10 +45,18 @@ No feature is marked Prod-ready yet: nothing has run against the real Supabase p
 | Anonymous analytics (no cookies, DNT respected) | Overview | New · Blocked: migration |
 | Security fixes S1–S5 (RLS, buckets) | Database | New · Tested (local Postgres) · Blocked: staging apply |
 | 3D Gallery Walk (`/gallery-walk`): original multi-room museum from archive data, guided + free movement, collision, spotlights, inspect view, 2D fallback, WebGL recovery | Public | New · Tested (unit + browser, local fixtures) · Blocked: real archive images and non-Chrome browsers; see docs/GALLERY_WALK.md |
+| Link in bio (`/links`, edited in Website → Link in bio) | Public / Website | New (quick wins) · Tested (unit + SQL + build + HTTP smoke) · Blocked: migration |
+| Newsletter double opt-in (`/confirm-subscription`, pending count in Email Studio, rate limits) | Email Studio | New (quick wins) · Tested (unit + build + HTTP smoke) · Blocked: migration, n8n confirmation workflow |
+| Certificates of authenticity (PDF with QR, public `/verify/<code>`, withdraw) | Artwork Archive | New (quick wins) · Tested (unit + SQL + build) · Blocked: migration, browser check of the PDF |
+| Quotes → invoice, paid date + sale sync, receipts, payment reminders (manual + daily cron) | Collectors & Sales | New (quick wins) · Tested (unit + SQL + build) · Blocked: migration, n8n reminder workflow, `CRON_SECRET` |
+| Secure file sharing (`/share/<token>`: expiry, passcode, withdraw, download log, signed URLs) | PDF & Tools | New (quick wins) · Tested (unit + SQL + build + HTTP smoke) · Blocked: migration, browser upload test |
 | ARVISTA code | Public | Not used (no licence); creative reference only |
 | Journal | Public | Not built: no real editorial content yet (blueprint marks it optional) |
 
 ## Blockers
+
+Quick wins (branch `build/quick-wins`, 2026-11-18): apply `supabase/migrations/20261118000000_studio_quick_wins.sql` after the earlier three; create the n8n workflows for `N8N_CONFIRM_WEBHOOK_URL` and `N8N_PAYMENT_REMINDER_WEBHOOK_URL`; set `CRON_SECRET` on Vercel. Not yet browser-tested against a local Supabase (Docker was not running).
+
 
 1. Supabase project `qdqsmciqnntvzpyhqbps` access (for staging branch, schema check, migrations).
 2. Hosted n8n URL, existing workflow list, a test webhook.

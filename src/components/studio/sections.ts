@@ -41,6 +41,7 @@ export const STUDIO_SECTIONS: StudioSection[] = [
     links: [
       { name: 'Artworks & PDFs', href: '/studio/archive' },
       { name: 'Complete catalogue', href: '/studio/archive/catalog' },
+      { name: 'Certificates', href: '/studio/archive/certificates' },
       { name: 'Add artwork', href: '/studio/archive/new' },
     ],
   },
@@ -56,6 +57,7 @@ export const STUDIO_SECTIONS: StudioSection[] = [
     links: [
       { name: 'Publishing', href: '/studio/website' },
       { name: 'Artist profile', href: '/studio/website/profile' },
+      { name: 'Link in bio', href: '/studio/website/links' },
     ],
   },
   {
@@ -89,7 +91,20 @@ export const STUDIO_SECTIONS: StudioSection[] = [
       { name: 'Viewing rooms', href: '/studio/viewing-rooms' },
     ],
   },
-  { key: 'tools', name: 'Documents & PDFs', short: 'Documents', href: '/studio/tools', icon: FileStack, group: 'Tools', accent: '#8C4E2B', match: ['/studio/tools'] },
+  {
+    key: 'tools',
+    name: 'Documents & PDFs',
+    short: 'Documents',
+    href: '/studio/tools',
+    icon: FileStack,
+    group: 'Tools',
+    accent: '#8C4E2B',
+    match: ['/studio/tools'],
+    links: [
+      { name: 'PDF & image tools', href: '/studio/tools' },
+      { name: 'Share files', href: '/studio/tools/shares' },
+    ],
+  },
   { key: 'reports', name: 'Reports', short: 'Reports', href: '/studio/reports', icon: BarChart3, group: 'Tools', accent: '#8C4E2B', match: ['/studio/reports'] },
   { key: 'settings', name: 'Settings', short: 'Settings', href: '/studio/settings', icon: Settings, group: 'General', accent: '#8C4E2B', match: ['/studio/settings'] },
 ];

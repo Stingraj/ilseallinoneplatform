@@ -8,10 +8,12 @@ import { n8nHeaders } from './dispatch';
  */
 export const AUTOMATIONS = {
   enquiry: { label: 'Enquiry notification and follow-up', env: 'N8N_ENQUIRY_WEBHOOK_URL' },
+  newsletter_confirm: { label: 'Newsletter sign-up confirmation (double opt-in)', env: 'N8N_CONFIRM_WEBHOOK_URL' },
   welcome: { label: 'Newsletter welcome', env: 'N8N_WELCOME_WEBHOOK_URL' },
   exhibition_invite: { label: 'Exhibition invitation', env: 'N8N_EXHIBITION_WEBHOOK_URL' },
   collection_announcement: { label: 'New collection announcement', env: 'N8N_COLLECTION_WEBHOOK_URL' },
   collector_follow_up: { label: 'Collector follow-up', env: 'N8N_FOLLOW_UP_WEBHOOK_URL' },
+  payment_reminder: { label: 'Invoice payment reminder', env: 'N8N_PAYMENT_REMINDER_WEBHOOK_URL' },
 } as const;
 
 export type AutomationKind = keyof typeof AUTOMATIONS;

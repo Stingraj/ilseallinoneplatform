@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { getServiceRoleClient } from '@/lib/supabase-server';
 import { notifyAutomation } from '@/lib/email/automations';
+import { CONFIRMATION_DAYS, MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY, MAX_SIGNUPS_PER_IP_PER_HOUR, createConfirmToken } from '@/lib/email/confirm';
+import { SITE } from '@/lib/site/config';
 import type { FormState } from './forms';
 
 type Admin = NonNullable<ReturnType<typeof getServiceRoleClient>['client']>;
@@ -148,10 +150,67 @@ export async function recordEnquiry(input: z.infer<typeof enquirySchema>, ip: st
   return { status: 'success', message: 'Thank you. Your message has reached the studio, and you will hear back soon.' };
 }
 
-export async function recordNewsletterSignup(email: string): Promise<FormState> {
+/**
+ * Double opt-in: a sign-up only records a pending confirmation and emails a confirmation link. The address joins the
+ * mailing list (marketing consent) when the link is confirmed on /confirm-subscription. Before the quick-wins migration
+ * there is nowhere to keep pending sign-ups, so the previous single opt-in behaviour is kept.
+ */
+export async function recordNewsletterSignup(email: string, ip: string | null): Promise<FormState> {
   const { client: admin } = getServiceRoleClient();
   if (!admin) return { status: 'error', message: 'Sign-up is temporarily unavailable.' };
 
+  const normalized = email.trim().toLowerCase();
+  const ipHash = hashIp(ip);
+  const checkInbox: FormState = { status: 'success', message: 'Thank you. Please check your inbox and confirm your subscription.' };
+
+  if (ipHash) {
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const recent = await admin.from('newsletter_confirmations').select('token_hash', { count: 'exact', head: true }).eq('ip_hash', ipHash).gte('created_at', since);
+    if (recent.error && isMissing(recent.error)) return recordSingleOptIn(admin, email);
+    if (!recent.error && (recent.count ?? 0) >= MAX_SIGNUPS_PER_IP_PER_HOUR) {
+      return { status: 'error', message: 'There have been several sign-ups from here recently. Please try again a little later.' };
+    }
+  }
+
+  // Never email the same address over and over (someone else may be typing it in), and say the same thing either way.
+  const daySince = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const forEmail = await admin.from('newsletter_confirmations').select('token_hash', { count: 'exact', head: true }).eq('email_normalized', normalized).gte('created_at', daySince);
+  if (forEmail.error && isMissing(forEmail.error)) return recordSingleOptIn(admin, email);
+  if (!forEmail.error && (forEmail.count ?? 0) >= MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY) return checkInbox;
+
+  // Already on the list: nothing to confirm. The visitor sees the same message, so membership is not revealed.
+  const { data: subscribed } = await admin
+    .from('contacts')
+    .select('id')
+    .ilike('email', escapeLike(normalized))
+    .eq('consent_marketing', true)
+    .is('unsubscribed_at', null)
+    .limit(1)
+    .maybeSingle();
+  if (subscribed) return checkInbox;
+
+  const { token, tokenHash } = createConfirmToken();
+  const inserted = await admin.from('newsletter_confirmations').insert({
+    token_hash: tokenHash,
+    email_normalized: normalized,
+    ip_hash: ipHash,
+    expires_at: new Date(Date.now() + CONFIRMATION_DAYS * 24 * 60 * 60 * 1000).toISOString(),
+  });
+  if (inserted.error && isMissing(inserted.error)) return recordSingleOptIn(admin, email);
+  if (inserted.error) return { status: 'error', message: 'Sign-up failed. Please try again.' };
+
+  await notifyAutomation('newsletter_confirm', {
+    email: normalized,
+    confirmUrl: `${SITE.url}/confirm-subscription?t=${token}`,
+    expiresInDays: CONFIRMATION_DAYS,
+  });
+  return checkInbox;
+}
+
+export const escapeLike = (value: string) => value.replace(/[\\%_]/g, (c) => `\\${c}`);
+
+/** The original behaviour, used only until the quick-wins migration adds newsletter_confirmations. */
+async function recordSingleOptIn(admin: Admin, email: string): Promise<FormState> {
   const now = new Date().toISOString();
   const existingId = await findContactId(admin, email);
   if (existingId) {
