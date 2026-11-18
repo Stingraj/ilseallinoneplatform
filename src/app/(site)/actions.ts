@@ -39,7 +39,7 @@ export async function submitEnquiry(_previous: FormState, formData: FormData): P
 
 export async function subscribeNewsletter(_previous: FormState, formData: FormData): Promise<FormState> {
   if (looksAutomated(formData.get('company') as string | null, formData.get('startedAt') as string | null)) {
-    return { status: 'success', message: 'Thank you for subscribing.' };
+    return { status: 'success', message: 'Thank you. Please check your inbox and confirm your subscription.' };
   }
   const parsed = newsletterSchema.safeParse({ email: formData.get('email'), consent: formData.get('consent') === 'on' });
   if (!parsed.success) {
@@ -47,6 +47,6 @@ export async function subscribeNewsletter(_previous: FormState, formData: FormDa
     for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0])] ??= issue.message;
     return { status: 'error', message: Object.values(fieldErrors)[0] ?? 'Please check the form.', fieldErrors, values: echo(formData, ['email']) };
   }
-  const result = await recordNewsletterSignup(parsed.data.email);
+  const result = await recordNewsletterSignup(parsed.data.email, await clientIp());
   return result.status === 'error' ? { ...result, values: echo(formData, ['email']) } : result;
 }

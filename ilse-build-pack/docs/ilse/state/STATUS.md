@@ -57,3 +57,21 @@ Requested by the owner, who confirmed Arvista is theirs to reuse. `/` is now the
 
 Gates: tsc pass; lint 0 errors; 30/30 tests; `next build` pass; browser-checked on local Supabase at 1440 and 375 with three synthetic test images (local database only).
 Not done: Ilse's real artworks are not in this repo or in any database I can reach, so the museum shows whatever the connected Supabase archive publishes; with the real project connected, check the first load and the order of works.
+
+## Quick wins (2026-11-18, branch `build/quick-wins` from `build/arvista-site` @ 994a629)
+
+Five features that replace parts of paid tools: link in bio (`/links`), newsletter double opt-in, certificates of authenticity with QR verification, quotes → invoices → receipts with payment reminders, and secure file sharing. One additive migration: `20261118000000_studio_quick_wins.sql` (+ rollback, + `supabase/tests/30_quick_wins_checks.sql`, + appended to the one-shot script).
+
+| Gate | Result |
+|---|---|
+| `npx tsc --noEmit` | Pass |
+| `npm test` | 44/44 pass (14 new in `tests/unit/quick-wins.test.mts`) |
+| `npm run lint` | 0 errors; no warnings in new files |
+| `npx next build` | Pass (the Next.js CLI also reports a security advisory for 16.4.2; upgrade not done) |
+| `scripts/test-migrations.sh` (local Postgres 18) | ALL MIGRATION TESTS PASSED incl. rollback + re-apply |
+| One-shot script on an empty database | Applies; all 7 new tables created |
+| HTTP smoke (`next start`, no Supabase) | New public pages 200 with safe messages for bad links; studio pages → `/login`; PDF route 401; cron 401 without/with wrong secret, 503 without database |
+
+Not verified: browser run against a local Supabase (Docker not running) — sign-up → confirm, certificate PDF + QR scan, quote → invoice → receipt, file upload/download, cron with a past-due invoice. No email sent, nothing pushed, merged or deployed.
+
+Behaviour notes: before the migration, the sign-up form keeps the old single opt-in, invoices work as before, and the new studio pages show a setup notice. Automatic reminders are off until turned on in Settings, and nothing is sent unless `EMAIL_DISPATCH_MODE` is test/live with the reminder webhook set. File-share and viewing-room passcodes are stored as entered (same as the existing viewing rooms).

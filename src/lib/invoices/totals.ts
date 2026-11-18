@@ -12,9 +12,9 @@ export function invoiceTotals(lines: InvoiceLine[], taxRatePercent: number) {
   return { subtotal, tax, total: round(subtotal + tax) };
 }
 
-/** INV-2026-007 style numbers, sequential per calendar year. */
-export function nextInvoiceNumber(existing: string[], year: number): string {
-  const prefix = `INV-${year}-`;
+/** INV-2026-007 style numbers, sequential per calendar year. Quotes use Q-, certificates COA-. */
+export function nextInvoiceNumber(existing: string[], year: number, kind: 'INV' | 'Q' | 'COA' = 'INV'): string {
+  const prefix = `${kind}-${year}-`;
   const highest = existing
     .filter((number) => number.startsWith(prefix))
     .map((number) => Number(number.slice(prefix.length)))

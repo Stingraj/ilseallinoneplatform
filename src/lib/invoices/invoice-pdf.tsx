@@ -13,7 +13,13 @@ export interface InvoiceDocumentData {
   seller: { full_name?: string | null; email?: string | null; phone?: string | null; studio_address?: string | null; website?: string | null } | null;
   buyer: { name?: string | null; company?: string | null; email?: string | null; address?: string | null } | null;
   items: InvoiceLine[];
+  /** Which document to print from the same record. Defaults to an invoice. */
+  document?: 'invoice' | 'quote' | 'receipt';
+  valid_until?: string | null;
+  paid_at?: string | null;
 }
+
+const TITLES = { invoice: 'Invoice', quote: 'Quote', receipt: 'Receipt' } as const;
 
 const styles = StyleSheet.create({
   page: { padding: 48, fontSize: 10, fontFamily: 'Helvetica', color: '#1C1B1A' },
@@ -46,8 +52,10 @@ export function InvoiceDocument({ invoice }: { invoice: InvoiceDocumentData }) {
   const { subtotal, tax, total } = invoiceTotals(invoice.items, invoice.tax_rate);
   const seller = invoice.seller ?? {};
   const buyer = invoice.buyer ?? {};
+  const kind = invoice.document ?? 'invoice';
+  const title = TITLES[kind];
   return (
-    <Document title={`Invoice ${invoice.invoice_number}`} author={seller.full_name ?? undefined}>
+    <Document title={`${title} ${invoice.invoice_number}`} author={seller.full_name ?? undefined}>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
@@ -57,17 +65,19 @@ export function InvoiceDocument({ invoice }: { invoice: InvoiceDocumentData }) {
             {seller.phone ? <Text style={styles.muted}>{seller.phone}</Text> : null}
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            <Text style={styles.title}>Invoice</Text>
-            <Text>{invoice.invoice_number}</Text>
+            <Text style={styles.title}>{title}</Text>
+            <Text>{kind === 'receipt' ? `For invoice ${invoice.invoice_number}` : invoice.invoice_number}</Text>
             <Text style={styles.muted}>Issued {invoice.issue_date}</Text>
-            {invoice.due_date ? <Text style={styles.muted}>Due {invoice.due_date}</Text> : null}
-            {invoice.status === 'paid' ? <Text style={{ marginTop: 6 }}>PAID</Text> : null}
+            {kind === 'invoice' && invoice.due_date ? <Text style={styles.muted}>Due {invoice.due_date}</Text> : null}
+            {kind === 'quote' && invoice.valid_until ? <Text style={styles.muted}>Valid until {invoice.valid_until}</Text> : null}
+            {kind === 'receipt' && invoice.paid_at ? <Text style={styles.muted}>Paid {invoice.paid_at.slice(0, 10)}</Text> : null}
+            {kind === 'invoice' && invoice.status === 'paid' ? <Text style={{ marginTop: 6 }}>PAID</Text> : null}
           </View>
         </View>
 
         <View style={styles.parties}>
           <View>
-            <Text style={styles.label}>Billed to</Text>
+            <Text style={styles.label}>{kind === 'quote' ? 'Prepared for' : kind === 'receipt' ? 'Received from' : 'Billed to'}</Text>
             <Text>{buyer.name ?? '—'}</Text>
             {buyer.company ? <Text>{buyer.company}</Text> : null}
             {buyer.address ? <Text style={styles.muted}>{buyer.address}</Text> : null}
@@ -93,10 +103,12 @@ export function InvoiceDocument({ invoice }: { invoice: InvoiceDocumentData }) {
           {invoice.tax_rate > 0 ? (
             <View style={styles.totalRow}><Text>{invoice.tax_label ?? 'Tax'} ({invoice.tax_rate}%)</Text><Text>{money(tax, invoice.currency)}</Text></View>
           ) : null}
-          <View style={styles.grand}><Text>Total</Text><Text>{money(total, invoice.currency)}</Text></View>
+          <View style={styles.grand}><Text>{kind === 'receipt' ? 'Amount paid' : 'Total'}</Text><Text>{money(total, invoice.currency)}</Text></View>
         </View>
 
-        {invoice.notes ? (
+        {kind === 'receipt' ? (
+          <Text style={{ marginTop: 40 }}>Payment received with thanks.</Text>
+        ) : invoice.notes ? (
           <View style={{ marginTop: 40 }}>
             <Text style={styles.label}>Notes</Text>
             <Text>{invoice.notes}</Text>

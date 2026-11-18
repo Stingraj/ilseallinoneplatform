@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BookOpen, FileText, ListOrdered, Receipt } from 'lucide-react';
+import { Award, BookOpen, FileText, ListOrdered, Receipt, Share2 } from 'lucide-react';
 import { PageHeader } from '@/components/studio/page-header';
 import { SITE } from '@/lib/site/config';
 import { ImageOptimizer } from './image-optimizer';
@@ -9,7 +9,9 @@ import { PdfMaker } from './pdf-maker';
 const DOCUMENTS = [
   { href: '/studio/archive/catalog', title: 'Artwork catalogue', text: 'The full illustrated catalogue from your archive.', icon: BookOpen },
   { href: '/studio/archive', title: 'Portfolio & price list', text: 'Select works and export a PDF, with or without prices.', icon: ListOrdered },
-  { href: '/studio/invoices', title: 'Invoices', text: 'PDF invoices generated from recorded sales.', icon: Receipt },
+  { href: '/studio/invoices', title: 'Invoices & quotes', text: 'Quotes, invoices and receipts generated from recorded sales.', icon: Receipt },
+  { href: '/studio/archive/certificates', title: 'Certificates', text: 'Certificates of authenticity with a QR check page.', icon: Award },
+  { href: '/studio/tools/shares', title: 'Share files', text: 'Private, expiring download links for press and galleries.', icon: Share2 },
 ];
 
 export default function ToolsPage() {

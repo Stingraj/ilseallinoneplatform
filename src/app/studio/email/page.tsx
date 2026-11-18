@@ -20,10 +20,12 @@ const STATE_LABEL: Record<string, string> = {
 
 const AUTOMATION_NOTES: Record<AutomationKind, string> = {
   enquiry: 'Sent automatically when someone uses a contact or artwork enquiry form.',
-  welcome: 'Sent automatically when someone subscribes with consent.',
+  newsletter_confirm: 'Sent when someone signs up on the website. They are added to your list only after clicking the confirmation link.',
+  welcome: 'Sent automatically when someone confirms their newsletter sign-up.',
   exhibition_invite: 'Prepared as a draft from an exhibition (Exhibitions → Invitations); you send it here.',
   collection_announcement: 'Not triggered automatically. Write it here as a campaign.',
   collector_follow_up: 'Not triggered automatically. Write it here as a campaign.',
+  payment_reminder: 'Sent for unpaid invoices: from the invoice list, or daily after the due date when automatic reminders are on in Settings.',
 };
 
 export default async function EmailStudioPage({ searchParams }: { searchParams: Promise<{ draft?: string; from?: string }> }) {
@@ -50,6 +52,13 @@ export default async function EmailStudioPage({ searchParams }: { searchParams: 
     .order('created_at', { ascending: false })
     .limit(50);
   const drafts = await supabase.from('email_campaign_drafts').select('id, title, kind, updated_at').order('updated_at', { ascending: false }).limit(20);
+  const pendingSignups = await supabase
+    .from('newsletter_confirmations')
+    .select('token_hash', { count: 'exact', head: true })
+    .is('confirmed_at', null)
+    .gt('expires_at', new Date().toISOString());
+  const pendingCount = pendingSignups.error ? null : pendingSignups.count ?? 0;
+  const confirmTarget = automationTarget('newsletter_confirm');
   const historyMissing = isMissingSchema(operations.error);
   const testAddresses = parseAllowlist(process.env.EMAIL_TEST_RECIPIENTS).length;
 
@@ -81,6 +90,12 @@ export default async function EmailStudioPage({ searchParams }: { searchParams: 
         </div>
       )}
       <p className="text-xs text-[color:var(--studio-muted)]">&ldquo;Accepted by workflow&rdquo; means n8n received the campaign. Delivery, opens and clicks are not reported by the current workflow, so they are not shown.</p>
+      {pendingCount !== null && pendingCount > 0 && (
+        <p className="studio-card p-5 text-sm">
+          <strong>{pendingCount}</strong> newsletter sign-up{pendingCount === 1 ? ' is' : 's are'} waiting for the person to click the confirmation link.
+          {!confirmTarget.url && ' Confirmation emails are not connected yet, so these people have not received a link: connect the sign-up confirmation workflow (N8N_CONFIRM_WEBHOOK_URL).'}
+        </p>
+      )}
       {!isMissingSchema(drafts.error) && (drafts.data ?? []).length > 0 && (
         <div className="studio-card p-5">
           <h2 className="mb-3 text-base font-semibold">Studio drafts</h2>

@@ -89,6 +89,22 @@ export const getPublicProfile = cache(async (): Promise<PublicProfile | null> =>
   return legacy.error ? null : toPublicProfile(legacy.data);
 });
 
+export interface PublicLink {
+  label: string;
+  url: string;
+}
+
+/** Visible link-in-bio links, in the owner's order. Empty before the quick-wins migration. */
+export const getPublicLinks = cache(async (): Promise<PublicLink[]> => {
+  const supabase = createPublicClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase.from('website_links_public').select('label, url, sort_order').order('sort_order');
+  if (error) return [];
+  return (data ?? [])
+    .filter((row) => typeof row.url === 'string' && /^(https:\/\/|mailto:)/.test(row.url))
+    .map((row) => ({ label: String(row.label), url: String(row.url) }));
+});
+
 export const getPublicExhibitions = cache(async (): Promise<PublicExhibition[]> => {
   const supabase = createPublicClient();
   if (!supabase) return [];
