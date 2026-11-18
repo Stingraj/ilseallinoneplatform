@@ -1936,6 +1936,10 @@ create table if not exists public.invoice_reminders (
   created_at timestamptz not null default now()
 );
 create unique index if not exists invoice_reminders_stage_key on public.invoice_reminders (invoice_id, stage) where stage is not null;
+-- Manual reminders: at most one per invoice per clock hour (UTC), so a double click or a second tab cannot send two.
+create unique index if not exists invoice_reminders_manual_hour_key
+  on public.invoice_reminders (invoice_id, date_trunc('hour', created_at at time zone 'UTC'))
+  where stage is null;
 create index if not exists invoice_reminders_invoice_idx on public.invoice_reminders (invoice_id, created_at desc);
 
 -- Automatic reminders are off until the owner turns them on in Settings.

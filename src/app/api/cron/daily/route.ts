@@ -5,6 +5,10 @@ import { dueReminderStage, normalizeReminderDays, todayIn } from '@/lib/invoices
 import { getServiceRoleClient } from '@/lib/supabase-server';
 
 export const dynamic = 'force-dynamic';
+// Each reminder can wait up to 8 s for the email workflow; 20 per run stays well inside this limit.
+export const maxDuration = 300;
+const MAX_REMINDERS_PER_RUN = 20;
+const RECENT_REMINDER_HOURS = 48;
 
 function authorised(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -51,19 +55,33 @@ export async function GET(request: NextRequest) {
     .lt('valid_until', today)
     .select('id');
 
+  let attempted = 0;
   const reminders = { enabled: Boolean(settings?.payment_reminders_enabled), sent: 0, skipped: [] as string[] };
   if (settings?.payment_reminders_enabled) {
     const days = normalizeReminderDays(settings.payment_reminder_days);
     const { data: unpaid } = await client
       .from('invoices')
-      .select('id, invoice_number, amount, currency, due_date, notes, buyer, seller, contact_id, invoice_reminders(stage)')
+      .select('id, invoice_number, amount, currency, due_date, notes, buyer, seller, contact_id, invoice_reminders(stage, state, created_at)')
       .eq('kind', 'invoice')
       .in('status', ['unpaid', 'overdue'])
       .lt('due_date', today);
+    const recentSince = new Date(Date.now() - RECENT_REMINDER_HOURS * 3_600_000).toISOString();
     for (const invoice of unpaid ?? []) {
-      const sent = (invoice.invoice_reminders ?? []).map((r: { stage: number | null }) => r.stage).filter((s): s is number => s !== null);
+      const history = (invoice.invoice_reminders ?? []) as { stage: number | null; state: string; created_at: string }[];
+      const sent = history.map((r) => r.stage).filter((s): s is number => s !== null);
       const stage = dueReminderStage(invoice.due_date, today, days, sent);
       if (!stage) continue;
+      // A reminder (for example a manual one) went out recently: wait, the stage stays due for a later run.
+      if (history.some((r) => r.state !== 'not_sent' && r.state !== 'failed' && r.created_at >= recentSince)) {
+        reminders.skipped.push(`${invoice.invoice_number}: a reminder was sent in the last ${RECENT_REMINDER_HOURS} hours`);
+        continue;
+      }
+      // Keep each run well inside the function time limit; the rest are sent on the next run.
+      if (attempted >= MAX_REMINDERS_PER_RUN) {
+        reminders.skipped.push(`${invoice.invoice_number}: left for the next run (limit of ${MAX_REMINDERS_PER_RUN} per run)`);
+        continue;
+      }
+      attempted += 1;
       const outcome = await dispatchPaymentReminder(client, invoice as ReminderInvoice, stage, today);
       if (outcome.sent) reminders.sent += 1;
       else reminders.skipped.push(`${invoice.invoice_number}: ${outcome.reason}`);

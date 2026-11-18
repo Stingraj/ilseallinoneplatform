@@ -29,14 +29,20 @@ begin
   exception when check_violation then null;
   end;
 
-  -- automatic reminders: one per stage per invoice; manual reminders (no stage) are not limited by the index
+  -- automatic reminders: one per stage per invoice; manual reminders (no stage): one per invoice per hour
   insert into public.invoice_reminders (invoice_id, stage) values (v_invoice, 1);
   begin
     insert into public.invoice_reminders (invoice_id, stage) values (v_invoice, 1);
     raise exception 'same reminder stage claimed twice';
   exception when unique_violation then null;
   end;
-  insert into public.invoice_reminders (invoice_id, stage) values (v_invoice, null), (v_invoice, null);
+  insert into public.invoice_reminders (invoice_id, stage) values (v_invoice, null);
+  begin
+    insert into public.invoice_reminders (invoice_id, stage) values (v_invoice, null);
+    raise exception 'two manual reminders in the same hour';
+  exception when unique_violation then null;
+  end;
+  insert into public.invoice_reminders (invoice_id, stage, created_at) values (v_invoice, null, now() - interval '2 hours');
 
   -- certificates: verify codes must be well formed
   begin

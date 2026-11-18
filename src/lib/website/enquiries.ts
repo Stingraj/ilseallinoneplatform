@@ -3,7 +3,7 @@ import 'server-only';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { getServiceRoleClient } from '@/lib/supabase-server';
-import { notifyAutomation } from '@/lib/email/automations';
+import { automationTarget, notifyAutomation } from '@/lib/email/automations';
 import { CONFIRMATION_DAYS, MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY, MAX_SIGNUPS_PER_IP_PER_HOUR, createConfirmToken } from '@/lib/email/confirm';
 import { SITE } from '@/lib/site/config';
 import type { FormState } from './forms';
@@ -163,6 +163,10 @@ export async function recordNewsletterSignup(email: string, ip: string | null): 
   const ipHash = hashIp(ip);
   const checkInbox: FormState = { status: 'success', message: 'Thank you. Please check your inbox and confirm your subscription.' };
 
+  // Double opt-in only works when the confirmation email can be sent. Until that workflow is connected, keep the
+  // original single opt-in, so sign-ups are not left pending forever with no email on the way.
+  if (!automationTarget('newsletter_confirm').url) return recordSingleOptIn(admin, email);
+
   if (ipHash) {
     const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const recent = await admin.from('newsletter_confirmations').select('token_hash', { count: 'exact', head: true }).eq('ip_hash', ipHash).gte('created_at', since);
@@ -199,11 +203,17 @@ export async function recordNewsletterSignup(email: string, ip: string | null): 
   if (inserted.error && isMissing(inserted.error)) return recordSingleOptIn(admin, email);
   if (inserted.error) return { status: 'error', message: 'Sign-up failed. Please try again.' };
 
-  await notifyAutomation('newsletter_confirm', {
+  const sent = await notifyAutomation('newsletter_confirm', {
     email: normalized,
     confirmUrl: `${SITE.url}/confirm-subscription?t=${token}`,
     expiresInDays: CONFIRMATION_DAYS,
   });
+  if (!sent) {
+    // Nothing was sent: do not tell the visitor to check their inbox, and do not let the failed attempt count
+    // against their daily confirmation limit.
+    await admin.from('newsletter_confirmations').delete().eq('token_hash', tokenHash);
+    return { status: 'error', message: 'We could not send the confirmation email just now. Please try again in a few minutes.' };
+  }
   return checkInbox;
 }
 

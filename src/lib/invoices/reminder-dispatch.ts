@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { formatCurrency } from '@/lib/catalog';
 import { automationTarget, notifyAutomation } from '@/lib/email/automations';
 import { daysBetween } from './reminders';
 
@@ -17,14 +18,6 @@ export interface ReminderInvoice {
 }
 
 export type ReminderOutcome = { sent: boolean; reason?: string };
-
-function money(value: number, currency: string) {
-  try {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(value);
-  } catch {
-    return `${currency} ${value.toFixed(2)}`;
-  }
-}
 
 /**
  * Claims a reminder row first, then hands the reminder to the n8n workflow and records what happened. For automatic
@@ -54,7 +47,7 @@ export async function dispatchPaymentReminder(
     .select('id')
     .single();
   if (claimError) {
-    return { sent: false, reason: claimError.code === '23505' ? 'This reminder was already sent.' : claimError.message };
+    return { sent: false, reason: claimError.code === '23505' ? (stage === null ? 'A reminder was sent in the last hour.' : 'This reminder was already sent.') : claimError.message };
   }
 
   // A reminder the workflow did not accept is not retried for the same stage: a timeout may still have sent it.
@@ -63,7 +56,7 @@ export async function dispatchPaymentReminder(
     email,
     buyerName: invoice.buyer?.name ?? null,
     invoiceNumber: invoice.invoice_number,
-    amount: money(Number(invoice.amount), currency),
+    amount: formatCurrency(invoice.amount, currency),
     currency,
     dueDate: invoice.due_date,
     daysOverdue: invoice.due_date ? Math.max(0, daysBetween(invoice.due_date, today)) : null,

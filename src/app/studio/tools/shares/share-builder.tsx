@@ -36,7 +36,11 @@ export function ShareBuilder({ artworks, contacts }: { artworks: { id: string; t
       const created = await createShareAction(formData);
       if (!created.success || !created.id) return void toast.error(created.error ?? 'Could not create the share');
 
+      // The share exists from here on, and only the link's hash is stored: always show the link, even if a file fails.
+      setLink(created.link ?? null);
+
       // Files go straight from the browser to private storage (no size limit from the web server in between).
+      const failed: string[] = [];
       if (files.length) {
         const supabase = createClient();
         const uploaded: { path: string; name: string; size: number; type: string }[] = [];
@@ -44,23 +48,26 @@ export function ShareBuilder({ artworks, contacts }: { artworks: { id: string; t
           setProgress(`Uploading ${index + 1} of ${files.length}: ${file.name}`);
           const path = shareObjectPath(created.id, index, file.name);
           const { error } = await supabase.storage.from(SHARE_BUCKET).upload(path, file, { contentType: file.type || undefined, upsert: false });
-          if (error) {
-            setProgress(null);
-            return void toast.error(`${file.name} could not be uploaded: ${error.message}. The share was created without it.`);
-          }
-          uploaded.push({ path, name: file.name, size: file.size, type: file.type });
+          if (error) failed.push(`${file.name} (${error.message})`);
+          else uploaded.push({ path, name: file.name, size: file.size, type: file.type });
         }
-        setProgress('Finishing…');
-        const registered = await registerShareFilesAction(created.id, uploaded);
+        // Register whatever arrived, so every stored file belongs to the share (downloadable, and removed with it).
+        if (uploaded.length) {
+          setProgress('Finishing…');
+          const registered = await registerShareFilesAction(created.id, uploaded);
+          if (!registered.success) failed.push(registered.error ?? 'The uploaded files could not be added to the share');
+        }
         setProgress(null);
-        if (!registered.success) return void toast.error(registered.error ?? 'Files could not be added to the share');
       }
 
-      setLink(created.link ?? null);
       setFiles([]);
       formRef.current?.reset();
-      toast.success('Share created');
       router.refresh();
+      if (failed.length) {
+        toast.error(`The share was created, but not everything was added: ${failed.join('; ')}. Copy the link, then delete the share or create a new one if needed.`);
+      } else {
+        toast.success('Share created');
+      }
     });
   }
 

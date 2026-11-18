@@ -145,9 +145,16 @@ export async function convertQuoteAction(id: string, dueDate: string | null): Pr
     return { success: false, error: created.error };
   }
 
+  // Undo everything if the invoice cannot be completed: an invoice without its lines would print a total of 0.
+  const undo = async (message: string): Promise<Result> => {
+    await client.from('invoices').delete().eq('id', created.id as string);
+    await client.from('invoices').update({ status: 'open' }).eq('id', id).eq('status', 'accepted').is('converted_invoice_id', null);
+    return { success: false, error: `The quote could not be turned into an invoice: ${message}` };
+  };
+
   const items = [...(quote.invoice_items ?? [])] as { description: string; quantity: number; unit_amount: number; artwork_id: string | null; sort_order: number }[];
   if (items.length) {
-    await client.from('invoice_items').insert(items.map((item) => ({
+    const { error: itemsError } = await client.from('invoice_items').insert(items.map((item) => ({
       invoice_id: created.id,
       description: item.description,
       quantity: item.quantity,
@@ -155,8 +162,10 @@ export async function convertQuoteAction(id: string, dueDate: string | null): Pr
       artwork_id: item.artwork_id,
       sort_order: item.sort_order,
     })));
+    if (itemsError) return undo(itemsError.message);
   }
-  await client.from('invoices').update({ converted_invoice_id: created.id }).eq('id', id);
+  const { error: linkError } = await client.from('invoices').update({ converted_invoice_id: created.id }).eq('id', id);
+  if (linkError) return undo(linkError.message);
   if (quote.sale_id) {
     await client.from('sales').update({ status: 'invoice_sent' }).eq('id', quote.sale_id).in('status', ['lead', 'reserved']);
   }
@@ -189,9 +198,14 @@ export async function setInvoiceStatusAction(id: string, status: string): Promis
   const { error: updateError } = await client.from('invoices').update(patch).eq('id', id);
   if (updateError) return { success: false, error: updateError.message };
 
-  // Paid invoice → the sale is paid too (never moves a sale backwards from delivered).
-  if (current.kind === 'invoice' && status === 'paid' && current.sale_id) {
-    await client.from('sales').update({ status: 'paid' }).eq('id', current.sale_id).in('status', ['lead', 'reserved', 'invoice_sent']);
+  // Paid invoice → the sale is paid too (never moves a sale backwards from delivered). Undoing "paid" on the
+  // invoice moves a sale that is still "paid" back to "invoice sent", so the two stay in step.
+  if (current.kind === 'invoice' && current.sale_id) {
+    if (status === 'paid') {
+      await client.from('sales').update({ status: 'paid' }).eq('id', current.sale_id).in('status', ['lead', 'reserved', 'invoice_sent']);
+    } else if (current.status === 'paid') {
+      await client.from('sales').update({ status: 'invoice_sent' }).eq('id', current.sale_id).eq('status', 'paid');
+    }
   }
   revalidatePath('/studio/invoices');
   revalidatePath('/studio/sales');

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/studio/page-header';
-import { AUTOMATIONS } from '@/lib/email/automations';
+import { AUTOMATIONS, automationTarget } from '@/lib/email/automations';
 import { parseAllowlist } from '@/lib/email/eligibility';
 import { resolveDispatchTarget } from '@/lib/email/dispatch';
 import { getOwnerClient } from '@/lib/auth/require-owner';
@@ -9,8 +9,6 @@ import { getStudioSettings } from '@/lib/studio/settings';
 import { SettingsForm } from './settings-form';
 import { ReminderSettingsForm } from './reminder-settings-form';
 import { DEFAULT_REMINDER_DAYS } from '@/lib/invoices/reminders';
-import { automationTarget } from '@/lib/email/automations';
-import { isMissingSchema } from '@/lib/studio/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,8 +21,10 @@ export default async function SettingsPage() {
   const { user } = await getOwnerClient();
   const settings = await getStudioSettings(supabase);
   const target = resolveDispatchTarget(process.env);
+  // Read separately from getStudioSettings: before the quick-wins migration these columns do not exist, and the
+  // time zone settings must keep working.
   const reminderSettings = await supabase.from('studio_settings').select('payment_reminders_enabled, payment_reminder_days').eq('id', true).maybeSingle();
-  const remindersAvailable = !isMissingSchema(reminderSettings.error) && !reminderSettings.error;
+  const remindersAvailable = !reminderSettings.error;
   const timezones = Intl.supportedValuesOf('timeZone');
   if (!timezones.includes(settings.timezone)) timezones.unshift(settings.timezone);
 

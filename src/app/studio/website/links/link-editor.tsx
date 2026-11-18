@@ -24,7 +24,13 @@ type Result = { success: boolean; error?: string | null };
 export function LinkEditor({ initial }: { initial: LinkRow[] }) {
   const router = useRouter();
   const [rows, setRows] = useState(initial);
+  const [source, setSource] = useState(initial);
   const [pending, startTransition] = useTransition();
+  // router.refresh() re-renders the page with fresh rows: take them over (new links, saved labels, server order).
+  if (initial !== source) {
+    setSource(initial);
+    setRows(initial);
+  }
 
   function run(action: () => Promise<Result>, done: string, rollback?: LinkRow[]) {
     startTransition(async () => {
